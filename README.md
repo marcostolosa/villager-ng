@@ -69,7 +69,7 @@ villager-ng/
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/yourusername/villager-ng.git
+git clone https://github.com/marcostolosa/villager-ng.git
 cd villager-ng
 
 # Instalar a partir do wheel (recomendado)
