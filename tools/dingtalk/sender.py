@@ -18,8 +18,8 @@ class Manager:
 
     def send_dtk_msg(self, message):
         """
-        从config.py中读取配置
-        在反馈群中调用机器人发送信息
+        Ler configuração do config.py
+        Chamar bot no grupo de feedback para enviar informações
         :param message:
         :return:
         """
@@ -40,23 +40,23 @@ class Manager:
 
     def send_message_in_thread(self, message):
         """
-        非阻塞运行的发送信息机器人
-        功能同send_dingtalk_message
+        Bot de envio de mensagens não bloqueante
+        Funcionalidade igual a send_dingtalk_message
         """
         try:
             thread = threading.Thread(target=self.send_dtk_msg, args=(message,))
             thread.start()
         except Exception as e:
-            print(f"发送信息失败: {e}")
+            print(f"Falha ao enviar mensagem: {e}")
 
     def info(self, message):
-        thread = threading.Thread(target=self.send_dtk_msg, args=(f"[信息] {message}",))
+        thread = threading.Thread(target=self.send_dtk_msg, args=(f"[Informação] {message}",))
         thread.start()
 
     def warn(self, message):
-        thread = threading.Thread(target=self.send_dtk_msg, args=(f"[警告] {message}",))
+        thread = threading.Thread(target=self.send_dtk_msg, args=(f"[Aviso] {message}",))
         thread.start()
 
     def warn2(self, message):
-        thread = threading.Thread(target=self.send_dtk_msg, args=(f"[严重警告] {message}",))
+        thread = threading.Thread(target=self.send_dtk_msg, args=(f"[Aviso Grave] {message}",))
         thread.start()

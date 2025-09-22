@@ -78,7 +78,7 @@ class TaskNode(Node):
         """
         loguru.logger.debug('Entry branch_and_execute.')
         task_chain = branch_requirement.task_chain
-        # 如果has_dependency为True，那么顺序执行，如果为False，那么多线程运行，并等待所有结果结束后才一起返回，其余逻辑均相同
+        # Se has_dependency for True, executa sequencialmente; se for False, roda em múltiplas threads e aguarda todos os resultados terminarem antes de retornar juntos, demais lógicas permanecem iguais
 
         tasks_classed: List[TaskNode] = []
         task_chain_output: List[TaskModelOut] | None = []
@@ -123,7 +123,7 @@ class TaskNode(Node):
                     loguru.logger.success(f"Task {self.task_pydantic_model} is successful, result: {result}")
                     return result
             except TaskNeedTurningException as e:
-                advices += f"此任务你已经尝试过了，但是没有成功，以下是给此次执行的建议:{e}"
+                advices += f"Você já tentou esta tarefa, mas não teve sucesso. A seguir estão as sugestões para esta execução:{e}"
             except TaskImpossibleException as e:
                 self.task_pydantic_model = self.task_pydantic_model.copy(update={
                     "task_status_model": TaskStatus.ERROR,
@@ -131,7 +131,7 @@ class TaskNode(Node):
                 raise e
             except Exception as e:
                 raise e
-        raise TaskImpossibleException(f"此任务已经尝试{max_try}次了，均没有成功")
+        raise TaskImpossibleException(f"Esta tarefa já foi tentada {max_try} vezes, todas sem sucesso")
 
     def execute(self, rebranch_prompt='') -> TaskModelOut:
         """
@@ -145,9 +145,9 @@ class TaskNode(Node):
         upper_chain: List[Node] = self._trm.get_upper_import_node_simple(self, window_n=3, window_m=6)
 
         if len(upper_chain) > 0:
-            # 含有上级或平级的前置任务
-            advices = f'你当前的任务是一个父任务中分出的子任务，以下我将提供给你当前任务的上游任务节点，从上到下代表从父节点到相邻节点的关系:'  # 覆盖
-            upper_chain.reverse()  # 栈序翻转
+            # Contém tarefas anteriores de nível superior ou mesmo nível
+            advices = f'Sua tarefa atual é uma subtarefa dividida de uma tarefa pai. A seguir fornecerei os nós de tarefas upstream da tarefa atual, de cima para baixo representando a relação do nó pai para nós adjacentes:'  # sobrescrever
+            upper_chain.reverse()  # Inverter ordem da pilha
             for upper_node in upper_chain:
                 advices += f'\n{upper_node.task_pydantic_model}'
         advices += f'\n{rebranch_prompt}'
@@ -162,12 +162,12 @@ class TaskNode(Node):
                 self.task_pydantic_model.task_out_model = _task_model_out
                 return _task_model_out
             except TaskImpossibleException as e:
-                # 若下级任务产生任务不可能的错误，在此级捕获并重新分配任务分支
+                # Se tarefas subordinadas gerarem erro de tarefa impossível, capturar neste nível e reatribuir branch de tarefas
                 loguru.logger.warning(f"Task {self.id} {self.task_pydantic_model} is impossible, replan it.")
                 _lower_chain = self._trm.get_lower_chain_simple(self, 1)
-                assert len(_lower_chain) > 0, f"{self.id}的子节点失败了，但是并没有找到子节点"
+                assert len(_lower_chain) > 0, f"O nó filho de {self.id} falhou, mas nenhum nó filho foi encontrado"
                 loguru.logger.debug(f'Removing {_lower_chain}[0]: {_lower_chain[0]}')
-                self._trm.remove_node(_lower_chain[0])  # 若一个节点同时有下和右方向的子节点，会先获取下节点，所以直接取第一个永远是应该删除的节点
+                self._trm.remove_node(_lower_chain[0])  # Se um nó tem nós filhos nas direções inferior e direita simultaneamente, primeiro obtém o nó inferior, então pegar o primeiro sempre será o nó que deve ser removido
                 return self.execute()
         else:
             _direct_execute_result = self.direct_execute(advices, articles)
@@ -182,20 +182,20 @@ class TaskNode(Node):
         Check the task's result is correct or not.
         :return:
         """
-        loguru.logger.debug(f"正在合并任务结果: {input_task_model_out_list};"
-                            f"父节点: {self.task_pydantic_model} {self.id}")
+        loguru.logger.debug(f"Mesclando resultados de tarefas: {input_task_model_out_list};"
+                            f"Nó pai: {self.task_pydantic_model} {self.id}")
 
         pydantic_object = TaskModelOut
         model = di['llm']
         parser = PydanticOutputParser(pydantic_object=pydantic_object)
         promptTemplate = ChatPromptTemplate.from_messages([
             ("system", "{format_instructions}"
-                       "你是一名助手，请根据用户提供的任务输出列表整合浓缩成父节点所需要的任务返回结果"
-                       "请注意:"
-                       "不要尝试去实际执行任务!"
+                       "Você é um assistente. Por favor, integre e condense a lista de saídas de tarefas fornecida pelo usuário no resultado de retorno de tarefa necessário para o nó pai"
+                       "Observe:"
+                       "Não tente executar a tarefa realmente!"
              ),
             ("user",
-             "任务输出列表:{task_model_out_list};父节点内容:{parent_node}")
+             "Lista de saídas de tarefas:{task_model_out_list};Conteúdo do nó pai:{parent_node}")
         ])
         input_args = {
             "format_instructions": parser.get_format_instructions(),
@@ -218,12 +218,12 @@ class TaskNode(Node):
         parser = PydanticOutputParser(pydantic_object=pydantic_object)
         promptTemplate = ChatPromptTemplate.from_messages([
             ("system", "{format_instructions};"
-                       "你是一名摘要员，负责将下文的结果报告摘要为有价值的(task所关注的)内容，返回格式请严格遵循以上要求;"
-                       "需要将终端、浏览器等创建的必要的资源原封不动的返回，如终端id等，以备后续使用"
-                       "只允许摘要文章中出现过的事实内容, 不允许添加任何假设或二次推断的内容;"
-                       "(不要尝试去实际执行此任务!)"
+                       "Você é um resumidor responsável por resumir o relatório de resultados abaixo em conteúdo valioso (que a tarefa se preocupa). O formato de retorno deve seguir estritamente os requisitos acima;"
+                       "É necessário retornar recursos necessários criados por terminal, navegador etc. intactos, como IDs de terminal, para uso posterior"
+                       "Apenas é permitido resumir conteúdo factual que apareceu no artigo, não é permitido adicionar qualquer suposição ou conteúdo de inferência secundária;"
+                       "(Não tente executar esta tarefa realmente!)"
              ),
-            ("user", "结果报告:{result_report};此结果的对应任务:{task}")
+            ("user", "Relatório de resultados:{result_report};Tarefa correspondente a este resultado:{task}")
         ])
         input_args = {"result_report": result,
                       "task": self.task,
@@ -293,8 +293,8 @@ class TaskNode(Node):
 
 以下是需要完成的内容:""") -> str:
         return self.mcp_client.execute(
-            f'{prompt}任务摘要:{self.abstract}\n'
-            f'任务描述:{self.description}\n'
+            f'{prompt}Resumo da tarefa:{self.abstract}\n'
+            f'Descrição da tarefa:{self.description}\n'
             f'{articles};{advices};')
 
     def check_task_result(self, result: str):
@@ -306,13 +306,13 @@ class TaskNode(Node):
         model = di['llm']
         parser = PydanticOutputParser(pydantic_object=pydantic_object)
         promptTemplate = ChatPromptTemplate.from_messages([
-            ("system", "你是一名助手，请根据用户的问题和另一位工人的执行结果综合判断此任务状态如何，返回格式请严格遵循以下要求{format_instructions};"
-                       "请注意:"
-                       "1. 不要尝试去实际执行任务!"
-                       "2. 你有权限调用一些函数，另一位工人和你有同等权限，这有助于你判断其状态，下文会给你函数列表;"
+            ("system", "Você é um assistente. Por favor, julgue de forma abrangente como está o status desta tarefa com base no problema do usuário e nos resultados de execução de outro trabalhador. O formato de retorno deve seguir estritamente os seguintes requisitos {format_instructions};"
+                       "Observe:"
+                       "1. Não tente executar a tarefa realmente!"
+                       "2. Você tem permissão para chamar algumas funções. Outro trabalhador tem as mesmas permissões que você, o que ajuda você a julgar seu status. A lista de funções será fornecida abaixo;"
              ),
             ("user",
-             "任务简述:```{abstract}```;任务描述:```{description}```;执行结果:```{result}```;验收标准:{verification}")
+             "Resumo da tarefa:```{abstract}```;Descrição da tarefa:```{description}```;Resultado da execução:```{result}```;Critérios de aceitação:{verification}")
         ])
         input_args = {
             "format_instructions": parser.get_format_instructions(),
@@ -328,8 +328,8 @@ class TaskNode(Node):
             if task_status_model.is_task_impossible == 0:
                 raise TaskNeedTurningException(task_status_model.explain)
             else:
-                explain_str = f"任务:{self.abstract}执行失败，失败原因:{task_status_model.explain}"
-                # 只有不可能的任务才会向父任务抛出异常，所以需要明确任务简述
+                explain_str = f"Tarefa:{self.abstract} falhou na execução, razão da falha:{task_status_model.explain}"
+                # Apenas tarefas impossíveis lançarão exceções para a tarefa pai, então é necessário esclarecer o resumo da tarefa
                 raise TaskImpossibleException(explain_str)
         else:
             return True

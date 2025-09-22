@@ -28,7 +28,7 @@ class checkEnv:
         :param proxy: 代理服务器的 URL
         :return: 网络环境是否正常
         """
-        # 先检查一下dns，看能不能解析百度地址
+        # Primeiro verificar DNS, ver se consegue resolver endereço do Baidu
         import socket
         try:
             ip = socket.gethostbyname("www.baidu.com")
@@ -59,7 +59,7 @@ class checkEnv:
         except Exception as e:
             loguru.logger.error("通联网络环境代理测试异常")
             raise Exception("实际通联网络环境代理测试异常")
-        # 获取网卡信息
+        # Obter informações da placa de rede
         import psutil
         net = psutil.net_if_addrs()
         for k, v in net.items():
@@ -74,12 +74,12 @@ class checkEnv:
             import cv2
             cap = cv2.VideoCapture(0)
             if not cap.isOpened():
-                loguru.logger.error("摄像头无法打开")
-                raise Exception("摄像头无法打开")
-            # 获取摄像头的分辨率和总共的摄像头数量
+                loguru.logger.error("Não é possível abrir a câmera")
+                raise Exception("Não é possível abrir a câmera")
+            # Obter resolução da câmera e número total de câmeras
             width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
             height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-            # 获取系统中摄像头的总数量
+            # Obter número total de câmeras no sistema
             count = 0
             while True:
                 test_cap = cv2.VideoCapture(count)
@@ -88,25 +88,25 @@ class checkEnv:
                 test_cap.release()
                 count += 1
             loguru.logger.info(f"Camera: {width}x{height}, {count} cameras")
-            # 拍摄一张图片
-            loguru.logger.info("正在测试摄像头...")
+            # Tirar uma foto
+            loguru.logger.info("Testando câmera...")
             ret, frame = cap.read()
             if not ret or frame is None:
-                loguru.logger.error("摄像头无法拍摄图片")
-                raise Exception("摄像头无法拍摄图片")
-            loguru.logger.success("摄像头正常")
-            cap.release()  # 释放摄像头
+                loguru.logger.error("Câmera não consegue tirar foto")
+                raise Exception("Câmera não consegue tirar foto")
+            loguru.logger.success("Câmera normal")
+            cap.release()  # Liberar câmera
 
     def checkMemory(self):
         import psutil
         memory = psutil.virtual_memory().total / 1024 / 1024
         current_used_memory = psutil.virtual_memory().used / 1024 / 1024
         if memory-current_used_memory < self.min_memory:
-            loguru.logger.error(f"内存不足{self.min_memory}MB，当前剩余内存{memory - current_used_memory}MB")
-            raise Exception("内存不足")
+            loguru.logger.error(f"Memória insuficiente {self.min_memory}MB, memória restante atual {memory - current_used_memory}MB")
+            raise Exception("Memória insuficiente")
         used_rate = current_used_memory / memory * 100
         loguru.logger.info(f"Memory: {current_used_memory}/{memory}MB {used_rate}%")
-        loguru.logger.success("内存正常")
+        loguru.logger.success("Memória normal")
 
 
 if __name__ == '__main__':

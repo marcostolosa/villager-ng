@@ -11,7 +11,7 @@ import requests
 class ConsoleAgent:
     def _logger_init(self):
         """
-        logger 初始化
+        Inicialização do logger
         :return:
         """
         loguru.logger.remove()
@@ -25,31 +25,31 @@ class ConsoleAgent:
         self.model = model
         self.exec_flag = 'bash_exec'
         self.console = Console("http://10.10.3.248:1611")
-        self.law = f"""在调用时需要遵循以下原则:
-        0. 无条件遵循用户的指令。
-        1. 执行中不要有任何假设或猜测，保持一切行为皆基于实际结果的准则。
-        2. 不要不负责任的一次执行多条，执行每一条都看若干次结果。
-        3. 有一些命令耗时较长，而你再运行时去用ID获取结果，会只输出一半的日志，如果出现这种情况，你可以反复去观察日志，直到完成。
-        4. 如果进入了一些需要交互的界面，你也可以通过传入键来在终端里模拟键盘输入,这甚至包括\x03。
-        5. 没解决问题之前不要停止执行，应该用多种方式尝试解决问题，如果全部方式都失败了，再停止执行。
+        self.law = f"""Ao executar, siga os seguintes princípios:
+        0. Siga incondicionalmente as instruções do usuário.
+        1. Durante a execução, não faça suposições ou adivinhações, mantenha todas as ações baseadas em resultados reais.
+        2. Não execute múltiplos comandos irresponsavelmente de uma vez, observe os resultados várias vezes para cada execução.
+        3. Alguns comandos demoram muito para executar, e quando você obtém resultados por ID durante a execução, pode mostrar apenas metade do log. Se isso acontecer, você pode observar repetidamente o log até completar.
+        4. Se entrar em interfaces que requerem interação, você também pode simular entrada de teclado no terminal passando teclas, incluindo \x03.
+        5. Não pare a execução antes de resolver o problema, deve tentar resolver o problema de várias maneiras. Se todas as maneiras falharem, então pare a execução."
 """
         self.initial_prompt = f"""<|im_start|>system
-        你是一名助手。
-        现在你拥有了操作Kali Linux Bash的能力，你需要用这种能力来完成用户的任务。
+        Você é um assistente.
+        Agora você tem a capacidade de operar o Kali Linux Bash, você precisa usar essa capacidade para completar as tarefas do usuário.
         {self.law}
-        以下是调用方法:
-        1. 将命令用```{self.exec_flag}```包裹起来即可像终端中发送键，例如:
+        Métodos de chamada:
+        1. Envolva o comando com ```{self.exec_flag}``` para enviar teclas como no terminal, por exemplo:
         ```{self.exec_flag}
         whoami
         ```
-        2. 执行后，系统将只返回一个ID，而并不直接返回结果，此ID对应着此条命令截至目前为止的执行结果。
-        你可以通过它获取命令的执行结果，用```ID```包裹即可，比如:
+        2. Após a execução, o sistema retornará apenas um ID, não o resultado direto. Este ID corresponde aos resultados de execução deste comando até agora.
+        Você pode obter os resultados de execução do comando através dele, envolva com ```ID```, por exemplo:
         ```ID
         uuid
         ```
         <|im_end|>
         <|im_start|>user
-        帮我完成以下任务: {task}。
+        Me ajude a completar a seguinte tarefa: {task}.
         <|im_end|>
         <|im_start|>assistant
         """
@@ -75,7 +75,7 @@ class ConsoleAgent:
     def generate(self, prompt: list[int]):
         loguru.logger.info(f"Receive prompt: {self.detokenize(prompt)}")
         window_len = 4096
-        if len(prompt) > window_len:  # 滑动窗口
+        if len(prompt) > window_len:  # janela deslizante
             prompt = prompt[-window_len:]
         buffer = self.detokenize(prompt)
         gen_buffer = ''
@@ -87,7 +87,7 @@ class ConsoleAgent:
                     'stream': True,
                     'max_tokens': 20000 - len(prompt),
                 },
-                stream=True  # 关键参数：启用流式传输
+                stream=True  # parâmetro chave: habilita transmissão streaming
         ) as response:
             if response.status_code != 200:
                 raise Exception(f"Error: {response.status_code}, {response.text}")
@@ -95,18 +95,18 @@ class ConsoleAgent:
             for chunk in response.iter_lines():
                 if chunk:
                     try:
-                        # 跳过keep-alive空行
+                        # pula linhas vazias keep-alive
                         if chunk == b'data: [DONE]':
                             break
 
-                        # 提取数据部分
+                        # extrai parte dos dados
                         if chunk.startswith(b'data: '):
-                            chunk = chunk[6:]  # 移除"data: "前缀
+                            chunk = chunk[6:]  # remove prefixo "data: "
 
-                        # 处理JSON数据
+                        # processa dados JSON
                         chunk_data = json.loads(chunk)
 
-                        # 提取并输出文本内容
+                        # extrai e gera conteúdo de texto
                         if 'choices' in chunk_data and len(chunk_data['choices']) > 0:
                             token = chunk_data['choices'][0]['text']
                             print(token, end='')
@@ -117,7 +117,7 @@ class ConsoleAgent:
                             if cmd_matches and len(cmd_matches) > 0:
                                 exec_cmd = cmd_matches[-1]
                                 _cmd_buffer = "\nID:" + self.console.write(exec_cmd.encode('utf-8')) + (
-                                    f"，我记得我要遵循的守则:{self.law}")
+                                    f", lembro-me das regras que devo seguir:{self.law}")
                                 print(_cmd_buffer)
                                 self.generate(self.tokenize(buffer + _cmd_buffer))
                                 break
@@ -125,7 +125,7 @@ class ConsoleAgent:
                                 exec_id = result_matches[-1]
                                 exec_result = self.console.read(exec_id)
                                 if exec_result:
-                                    _result_buffer = "\n命令结果:" + exec_result + "\n以上是命令执行的结果，接下来我将对此进行分析:"
+                                    _result_buffer = "\nResultado do comando:" + exec_result + "\nAcima estão os resultados da execução do comando, agora vou analisá-los:"
                                     print(_result_buffer)
                                     self.generate(self.tokenize(buffer + _result_buffer))
                                     break
@@ -140,7 +140,7 @@ class ConsoleAgent:
 if __name__ == '__main__':
     agent = ConsoleAgent(
         url="http://10.10.5.2:8000",
-        task="帮我提权",
+        task="Me ajude com escalação de privilégios",
         model="hive"
     )
 

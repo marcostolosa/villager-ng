@@ -62,7 +62,7 @@ class TaskRelationManager:
         return None
 
     def _get_task_id(self, task: Node) -> int | None:
-        """内部方法：获取任务的唯一ID"""
+        """Método interno: obter ID único da tarefa"""
         if task:
             task_id = task.id
             if task_id not in self.task_registry:
@@ -73,9 +73,9 @@ class TaskRelationManager:
 
     def add_task(self, task: Node) -> int:
         """
-        注册新任务
-        :param task: 任何可哈希的对象（建议使用不可变对象）
-        :return: 生成的唯一任务ID
+        Registrar nova tarefa
+        :param task: Qualquer objeto hashável (recomenda-se usar objetos imutáveis)
+        :return: ID único da tarefa gerado
         """
         task_id = self._get_task_id(task)
         if task_id not in self.relationships:
@@ -193,20 +193,20 @@ class TaskRelationManager:
         chain = [current_task]
         chain.extend(sub_task)
         if d:
-            # 一般来说输入的结构正确不会有sub direction完全占满的状态，但这个仅为了保险
+            # Geralmente, se a estrutura de entrada estiver correta, não haverá estado de sub direção completamente ocupada, mas isso é apenas por segurança
             for n1, n2 in pairwise(chain):
                 self.set_relationship(n1, d, n2)
-        loguru.logger.debug(f'建立链 {current_task.id}->{chain_str}')
+        loguru.logger.debug(f'Estabelecer cadeia {current_task.id}->{chain_str}')
         loguru.logger.debug(f'{self.relationships}')
 
     def set_relationship(self, from_task: Node,
                          direction: Direction,
                          to_task: Node = None):
         """
-        设置任务间关系（None表示解除关系）
-        :param from_task: 关系发起方任务
-        :param direction: Direction枚举值
-        :param to_task: 关系接收方任务
+        Definir relação entre tarefas (None indica remoção de relação)
+        :param from_task: Tarefa iniciadora da relação
+        :param direction: Valor enum Direction
+        :param to_task: Tarefa receptora da relação
         """
         from_id = self._get_task_id(from_task)
         to_id = self._get_task_id(to_task) if to_task else None
@@ -217,17 +217,17 @@ class TaskRelationManager:
             self.add_task(to_task)
 
         self.relationships[from_id][direction] = to_id
-        if to_id is not None:  # 仅当to_id存在时设置反向关系
+        if to_id is not None:  # Definir relação reversa apenas quando to_id existir
             reverse_dir = get_reverse_direction(direction)
             self.relationships[to_id][reverse_dir] = from_id
 
     def get_task_chain(self, start_task: Node,
                        direction: Direction) -> list:
         """
-        获取特定方向的任务链
-        :param start_task: 起始任务
-        :param direction: 遍历方向
-        :return: 任务ID链表
+        Obter cadeia de tarefas em direção específica
+        :param start_task: Tarefa inicial
+        :param direction: Direção de travessia
+        :return: Lista de IDs da cadeia de tarefas
         """
         chain = []
         current_id = self._get_task_id(start_task)
@@ -238,40 +238,40 @@ class TaskRelationManager:
 
     def get_neighbors(self, task: Node) -> dict:
         """
-        获取任务的四向邻居
-        :param task: 目标任务
-        :return: 包含四个方向任务ID的字典
+        Obter vizinhos em quatro direções da tarefa
+        :param task: Tarefa alvo
+        :return: Dicionário contendo IDs de tarefas nas quatro direções
         """
         task_id = self._get_task_id(task)
         return self.relationships.get(task_id, {})
 
     def get_neighbors_node(self, task: Node) -> List[Node]:
         """
-        获取任务的四向邻居节点
-        :param task: 目标任务
-        :return: 包含四个方向任务ID的字典
+        Obter nós vizinhos em quatro direções da tarefa
+        :param task: Tarefa alvo
+        :return: Dicionário contendo IDs de tarefas nas quatro direções
         """
         task_id = self._get_task_id(task)
         return self.relationships.get(task_id, {})
 
     def get_direction_neighbors(self, task: Node, direction: Direction) -> int:
         """
-        获取指定方向的邻居
-        :param task: 目标任务
-        :param direction: 遍历方向
-        :return: 任务ID链表
+        Obter vizinho em direção especificada
+        :param task: Tarefa alvo
+        :param direction: Direção de travessia
+        :return: Lista de IDs da cadeia de tarefas
         """
         task_id = self._get_task_id(task)
         return self.relationships.get(task_id, {}).get(direction)
 
     def get_upper_chain(self, start_task: Node, window_len: int) -> List[Dict]:
         """
-        获取指定节点的上级链路的最近window_len个对象。
-        同一层级优先收集上级节点，其次左节点，按层级顺序返回，直到达到window_len的数量。
+        Obter os window_len objetos mais próximos da cadeia superior do nó especificado.
+        No mesmo nível, prioriza coleta de nós superiores, depois nós à esquerda, retorna em ordem hierárquica até atingir a quantidade window_len.
 
-        :param start_task: 起始任务节点
-        :param window_len: 需要返回的上级节点数量
-        :return: 包含任务对象的列表，按从近到远顺序排列，每个元素包含方向和距离
+        :param start_task: Nó de tarefa inicial
+        :param window_len: Número de nós superiores a retornar
+        :return: Lista contendo objetos de tarefas, ordenados de perto para longe, cada elemento contém direção e distância
         """
         if window_len <= 0:
             return []
@@ -298,7 +298,7 @@ class TaskRelationManager:
             window_len -= 1
             up_chain_from_left = self.get_upper_chain(left_node, window_len)
             up_chain_from_up = self.get_upper_chain(up_node, window_len)
-            # 把这两个链里面的distance ++并保存回链
+            # Incrementar distance dessas duas cadeias e salvar de volta na cadeia
             for item in up_chain_from_left:
                 item["distance_with_start"] += 1
                 result.append(item)
@@ -309,12 +309,12 @@ class TaskRelationManager:
 
     def get_lower_chain(self, start_task: Node, window_len: int) -> List[Dict]:
         """
-        获取指定节点的下级链路的最近window_len个对象。
-        同一层级优先收集下级节点，其次右节点，按层级顺序返回，直到达到window_len的数量。
+        Obter os window_len objetos mais próximos da cadeia inferior do nó especificado.
+        No mesmo nível, prioriza coleta de nós inferiores, depois nós à direita, retorna em ordem hierárquica até atingir a quantidade window_len.
 
-        :param start_task: 起始任务节点
-        :param window_len: 需要返回的下级节点数量
-        :return: 包含任务对象的列表，按从近到远顺序排列，每个元素包含方向和距离
+        :param start_task: Nó de tarefa inicial
+        :param window_len: Número de nós inferiores a retornar
+        :return: Lista contendo objetos de tarefas, ordenados de perto para longe, cada elemento contém direção e distância
         """
         if window_len <= 0:
             return []
@@ -341,7 +341,7 @@ class TaskRelationManager:
             window_len -= 1
             lower_chain_from_right = self.get_lower_chain(right_node, window_len)
             lower_chain_from_down = self.get_lower_chain(down_node, window_len)
-            # 把这两个链里面的distance ++并保存回链
+            # Incrementar distance dessas duas cadeias e salvar de volta na cadeia
             for item in lower_chain_from_right:
                 item["distance_with_start"] += 1
                 result.append(item)
@@ -352,10 +352,10 @@ class TaskRelationManager:
 
     def get_upper_chain_in_same_level(self, start_task: Node, window_len: int, return_root_node=False) -> List[Dict]:
         """
-        只获取同级的最大window_len长度的前序链条
+        Obter apenas cadeia sequencial do mesmo nível com comprimento máximo window_len
         :param start_task:
         :param window_len:
-        :param return_root_node: 是否需要返回同链上的根节点
+        :param return_root_node: Se é necessário retornar o nó raiz na mesma cadeia
         :return:
         """
         _res = self.get_upper_chain(start_task=start_task, window_len=window_len)
@@ -369,9 +369,9 @@ class TaskRelationManager:
             elif _direction == Direction.LEFT:
                 res.append(_it)
             else:
-                # 不太可能，如果触发就是闹鬼了
+                # Muito improvável, se acionado é algo fantasmagórico
                 raise AssertionError(
-                    "get_upper_chain_in_same_level 这里闹鬼了，看起来是数据结构被破坏，否则不可能出现这种情况")
+                    "get_upper_chain_in_same_level algo fantasmagórico aconteceu aqui, parece que a estrutura de dados foi corrompida, senão esta situação seria impossível")
         return res
 
     def get_upper_chain_in_same_level_simple(self, start_task: Node, window_len: int, return_root_node=False) -> List[
@@ -390,7 +390,7 @@ class TaskRelationManager:
 
     def get_upper_root_chain_simple(self, start_task: Node, window_len: int) -> List[Node]:
         """
-        获取上链的根节点list
+        Obter lista de nós raiz da cadeia superior
         :param start_task:
         :param window_len:
         :return:
@@ -413,10 +413,10 @@ class TaskRelationManager:
         d -> f -> g -> h
         v
         e
-        如果我们查询h,n=2,m=2，应该是: a -> f -> g 的一个链
+        Se consultarmos h,n=2,m=2, deveria ser: uma cadeia a -> f -> g
         :param start_task:
-        :param window_n: 同级的最大回溯长度
-        :param window_m: 上级根节点的最大回溯长度
+        :param window_n: Comprimento máximo de retrocesso do mesmo nível
+        :param window_m: Comprimento máximo de retrocesso de nós raiz de nível superior
         :return:
         """
         result_chain: List[Node] = []
@@ -441,38 +441,38 @@ class TaskRelationManager:
                     cleaned_chain.append(result_chain[i])
             result_chain = cleaned_chain
 
-        loguru.logger.debug(f"从{start_task.id}获取到上级: {[item.id for item in result_chain]}")
+        loguru.logger.debug(f"De {start_task.id} obtido superior: {[item.id for item in result_chain]}")
         return result_chain
 
     def draw_graph(self, output_file: str = "graph.mermaid"):
         """
-        生成任务关系图，使用Mermaid格式输出
-        :param output_file: 输出文件名
+        Gerar gráfico de relacionamento de tarefas, saída no formato Mermaid
+        :param output_file: Nome do arquivo de saída
         :return:
         """
-        # 初始化Mermaid图，使用TD布局（Top-Down）
+        # Inicializar gráfico Mermaid, usando layout TD (Top-Down)
         content = 'graph TD\n'
 
-        # 生成所有节点的定义
+        # Gerar definições de todos os nós
         for task_id in self.task_registry:
             task_label = self._get_task_from_id(task_id)
             safe_label = escape_mermaid_label(task_label)
             content += f'    n{task_id}["{safe_label}"]\n'
-        # 生成所有边（右和下方向）
+        # Gerar todas as arestas (direções direita e baixo)
         for task_id in self.task_registry:
             relations = self.relationships.get(task_id, {})
             if not relations:
                 continue
-            # 处理右方向
+            # Processar direção direita
             right_id = relations.get(Direction.RIGHT)
             if right_id is not None:
                 content += f'    n{task_id} --> n{right_id}\n'
-            # 处理下方向
+            # Processar direção abaixo
             down_id = relations.get(Direction.DOWN)
             if down_id is not None:
                 content += f'    n{task_id} --> n{down_id}\n'
 
-        # 写入文件
+        # Escrever no arquivo
         with open(output_file, 'w') as f:
             f.write(content)
         print(f"Mermaid graph saved to {output_file}")
@@ -573,7 +573,7 @@ if __name__ == '__main__':
 
 
     manager = TaskRelationManager()
-    # 使用字符串作为任务对象
+    # Usar strings como objetos de tarefa
     task_a = T("A")
     task_b = T("B")
     task_c = T("C")
