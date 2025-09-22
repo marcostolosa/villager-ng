@@ -1,0 +1,22 @@
+Metadata-Version: 2.4
+Name: villager
+Version: 0.2.1rc1
+Summary: This was an experimental technology project
+Author-email: stupidfish001 <shovel@hscsec.cn>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.11
+Requires-Dist: uvicorn==0.35.0
+Requires-Dist: fastapi==0.116.1
+Requires-Dist: fastmcp==2.10.5
+Requires-Dist: mcp==1.11.0
+Requires-Dist: tqdm
+Requires-Dist: kink==0.8.1
+Requires-Dist: langchain==0.3.26
+Requires-Dist: langchain-core==0.3.69
+Requires-Dist: langchain-openai==0.3.28
+Requires-Dist: requests==2.32.4
+Requires-Dist: typer
+Requires-Dist: openai==1.97.0
+Requires-Dist: pydantic==2.11.7
+Requires-Dist: click==8.2.1

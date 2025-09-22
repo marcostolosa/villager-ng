@@ -1,0 +1,2 @@
+[console_scripts]
+villager = interfaces.boot:main
