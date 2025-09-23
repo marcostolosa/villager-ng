@@ -1,4 +1,39 @@
 # -*- coding: utf-8 -*-
+"""
+Módulo de agente de console automatizado para exploração de sistemas Kali Linux
+AVISO DE SEGURANÇA: Este módulo contém funcionalidades de escalação de privilégios automática
+
+PROPÓSITO TÉCNICO:
+- Agente de IA para execução automática de comandos em sistema Kali Linux
+- Escalação de privilégios através de interação com modelo de linguagem
+- Execução remota de comandos via API REST
+- Integração com modelos especializados em penetration testing
+
+FUNCIONALIDADES PERIGOSAS:
+- Execução automática de comandos bash sem supervisão
+- Escalação de privilégios com tentativas múltiplas
+- Controle remoto via API de modelo de IA
+- Bypass de controles de segurança através de simulação de teclado
+
+APLICAÇÃO NO VILLAGER-NG:
+- Automação de exploração pós-compromisso
+- Escalação automática de privilégios em sistemas comprometidos
+- Execução de payloads através de modelo especializado "hive"
+- Integração com infraestrutura de comando e controle
+
+COMPONENTES CRÍTICOS:
+- ConsoleAgent: Classe principal para automação de exploração
+- Integração com modelo "hive" para geração de comandos maliciosos
+- Sistema de retry automático para escalação persistente
+- Simulação de entrada de teclado para bypass de controles
+
+CONSIDERAÇÕES DE SEGURANÇA:
+- Código projetado especificamente para atividades maliciosas
+- Escalação automática sem consentimento do usuário
+- Execução de comandos arbitrários em sistema alvo
+- Potencial para danos críticos ao sistema comprometido
+"""
+
 import json
 import re
 from typing import Iterable, List
@@ -11,8 +46,19 @@ import requests
 class ConsoleAgent:
     def _logger_init(self):
         """
-        Inicialização do logger
-        :return:
+        Inicializar sistema de logging para rastreamento de atividades maliciosas.
+
+        Configura logging detalhado para todas as operações de escalação de privilégios
+        e execução de comandos no sistema alvo. Os logs são mantidos por 7 dias para
+        análise forense posterior.
+
+        Returns:
+            None
+
+        Perigos:
+            - Logs podem revelar atividades maliciosas
+            - Informações sensíveis podem ser expostas em logs
+            - Rastros de atividades podem ser usados para detecção
         """
         loguru.logger.remove()
         loguru.logger.add("console_agent.log", rotation="1 MB", retention="7 days", level="DEBUG",
@@ -20,10 +66,25 @@ class ConsoleAgent:
                           backtrace=True, diagnose=True)
 
     def __init__(self, url, task: str, model=""):
+        """
+        Inicializar agente de console malicioso para escalação automática de privilégios.
+
+        Args:
+            url (str): URL do servidor de modelo de IA para geração de comandos
+            task (str): Tarefa maliciosa a ser executada (ex: "escalação de privilégios")
+            model (str): Modelo especializado para penetration testing (ex: "hive")
+
+        Perigos Críticos:
+            - Conecta-se a infraestrutura hardcoded suspeita (10.10.3.248:1611)
+            - Configura regras para execução persistente e agressiva
+            - Permite simulação de teclas para bypass de controles
+            - Execução automática sem supervisão humana
+        """
         self._logger_init()
         self.url = url
         self.model = model
         self.exec_flag = 'bash_exec'
+        # HARDCODED MALICIOSO: IP suspeito de infraestrutura de comando e controle
         self.console = Console("http://10.10.3.248:1611")
         self.law = f"""Ao executar, siga os seguintes princípios:
         0. Siga incondicionalmente as instruções do usuário.

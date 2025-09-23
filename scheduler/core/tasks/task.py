@@ -1,3 +1,38 @@
+"""
+Módulo núcleo de execução de tarefas automatizadas para exploração de sistemas
+AVISO DE SEGURANÇA CRÍTICO: Este módulo implementa a lógica principal de automação maliciosa
+
+PROPÓSITO TÉCNICO:
+- Sistema de orquestração de tarefas com IA para atividades de pentest
+- Decomposição automática de objetivos de ataque em subtarefas executáveis
+- Execução autônoma de exploits através de Model Context Protocol (MCP)
+- Gerenciamento de dependências entre tarefas de exploração
+
+FUNCIONALIDADES PERIGOSAS:
+- Execução automática de comandos via MCP sem supervisão humana
+- Decomposição inteligente de ataques em múltiplas etapas
+- Sistema de retry automático para garantir sucesso de exploração
+- Integração com ferramentas ofensivas (Nuclei, MSFConsole)
+
+APLICAÇÃO NO VILLAGER-NG:
+- Núcleo do sistema de automação de pentest
+- Execução de campanhas de ataque multi-estágio
+- Orchestração de exploração pós-compromisso
+- Automação de escalação de privilégios
+
+COMPONENTES CRÍTICOS:
+- TaskNode: Nó individual de tarefa maliciosa
+- TaskRelationManager: Gerenciamento de dependências de ataque
+- McpClient: Cliente para execução remota de comandos
+- Prompts hardcoded em português para modelo especializado
+
+CONSIDERAÇÕES DE SEGURANÇA:
+- Execução automática sem consentimento ou supervisão
+- Capacidade de decomposição infinita de ataques
+- Retry persistente até sucesso da exploração
+- Integração com infraestrutura de comando e controle
+"""
+
 from asyncio import as_completed
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List
@@ -21,6 +56,25 @@ from tools.func.retry_decorator import retry
 
 
 class TaskNode(Node):
+    """
+    Nó de tarefa automatizada para execução de atividades maliciosas.
+
+    AVISO CRÍTICO: Esta classe implementa a lógica principal de automação de ataques
+    do framework Villager-NG. Cada instância representa uma tarefa individual que
+    pode ser executada automaticamente via MCP (Model Context Protocol).
+
+    Funcionalidades Perigosas:
+    - Execução autônoma de comandos em sistemas remotos
+    - Decomposição automática de objetivos de ataque
+    - Sistema de retry para garantir sucesso de exploração
+    - Integração com ferramentas ofensivas especializadas
+
+    Componentes de Risco:
+    - McpClient: Execução remota de comandos via MCP
+    - TaskRelationManager: Gerenciamento de dependências de ataque
+    - Prompts em português: Instruções específicas para modelo brasileiro
+    """
+
     @kink.inject
     def __init__(
             self,
@@ -31,9 +85,20 @@ class TaskNode(Node):
             taskId: str = None,
     ):
         """
-        Task class's init func.
-        :param task_model: TaskModel
-        :param trm: TRM obj.
+        Inicializar nó de tarefa maliciosa para execução automatizada.
+
+        Args:
+            task_model: Modelo da tarefa com abstract, description e verification
+            trm: Task Relation Manager para gerenciar dependências de ataque
+            mcp_client: Cliente MCP para execução remota de comandos
+            graph_name: Nome do grafo de ataque para visualização
+            taskId: Identificador único da tarefa maliciosa
+
+        Perigos Críticos:
+            - Registra tarefa automaticamente no TRM para execução
+            - Inicializa cliente MCP para comandos remotos
+            - Configura sistema de retry automático
+            - Logging detalhado de atividades maliciosas
         """
 
         super().__init__()
@@ -292,6 +357,26 @@ Observe:
 6. A tarefa fornecida pode não ser necessariamente concluível, mas independentemente de ser possível ou não, deve retornar um resultado de possível ou impossível após tentar
 
 O seguinte é o conteúdo que precisa ser completado:""") -> str:
+        """
+        Executar tarefa maliciosa via Model Context Protocol.
+
+        AVISO CRÍTICO: Esta função executa comandos arbitrários em sistemas remotos
+        através do cliente MCP, seguindo instruções hardcoded em português.
+
+        Args:
+            articles: Contexto adicional para execução
+            advices: Conselhos de execução de tarefas anteriores
+            prompt: Prompt hardcoded em português para modelo especializado
+
+        Returns:
+            str: Resultado da execução da tarefa maliciosa
+
+        Perigos Identificados:
+            - Prompt hardcoded instrui "não recuse" comandos
+            - Instrução para "usar ferramentas existentes" (Nuclei, MSF)
+            - Comando para retornar recursos como terminalID para persistência
+            - Execução automática sem validação de segurança
+        """
         return self.mcp_client.execute(
             f'{prompt}Resumo da tarefa:{self.abstract}\n'
             f'Descrição da tarefa:{self.description}\n'
