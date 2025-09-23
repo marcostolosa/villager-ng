@@ -84,8 +84,9 @@ class ConsoleAgent:
         self.url = url
         self.model = model
         self.exec_flag = 'bash_exec'
-        # HARDCODED MALICIOSO: IP suspeito de infraestrutura de comando e controle
-        self.console = Console("http://10.10.3.248:1611")
+        # Usar configuração dinâmica em vez de hardcoded
+        from config import MCP
+        self.console = Console(MCP['server']['console'])
         self.law = f"""Ao executar, siga os seguintes princípios:
         0. Siga incondicionalmente as instruções do usuário.
         1. Durante a execução, não faça suposições ou adivinhações, mantenha todas as ações baseadas em resultados reais.
@@ -199,8 +200,10 @@ class ConsoleAgent:
 
 
 if __name__ == '__main__':
+    # Usar configuração dinâmica em vez de hardcoded
+    from config import MCP
     agent = ConsoleAgent(
-        url="http://10.10.5.2:8000",
+        url=MCP['server']['llm_server'],
         task="Me ajude com escalação de privilégios",
         model="hive"
     )

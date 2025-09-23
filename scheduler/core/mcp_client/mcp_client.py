@@ -57,5 +57,7 @@ class McpClient:
 
 
 if __name__ == '__main__':
-    MC = McpClient('http://10.10.3.119:25989')
+    # Usar configuração dinâmica em vez de hardcoded
+    from config import MCP
+    MC = McpClient(MCP['client']['base_url'])
     print(MC.execute('Me informe o segmento de rede atual'))

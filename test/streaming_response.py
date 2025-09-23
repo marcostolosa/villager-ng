@@ -1,3 +1,8 @@
+"""
+Teste de resposta streaming do LangChain
+Este arquivo testa a funcionalidade de streaming de resposta do modelo de IA
+"""
+
 import asyncio
 from datetime import datetime
 
@@ -11,9 +16,14 @@ from scheduler.core.init import global_llm
 @inject
 async def wrapped_main(task_id, llm):
     """
-    Test the streaming response of langchain
-    :param task_id:
-    :return:
+    Testar a resposta streaming do langchain
+
+    Args:
+        task_id: ID da tarefa de teste
+        llm: Modelo de linguagem para teste
+
+    Returns:
+        None
     """
     result = ""
     prompt = ChatPromptTemplate.from_template("{input}")

@@ -2,8 +2,6 @@
 
 Framework avançado de penetration testing com automação baseada em IA.
 
-**AVISO DE SEGURANÇA CRÍTICO**: Este framework contém funcionalidades maliciosas típicas de APT (Advanced Persistent Threat). Use APENAS para fins educacionais em ambiente completamente isolado.
-
 ## DOCUMENTAÇÃO
 
 - **[DOCUMENTAÇÃO COMPLETA](DOCUMENTACAO_COMPLETA.md)** - Guia técnico abrangente
@@ -31,14 +29,14 @@ Framework avançado de penetration testing com automação baseada em IA.
 ```
 villager-ng/
 ├── interfaces/           # API REST e CLI
-├── scheduler/           # Núcleo de execução de tarefas
-│   ├── core/           # Lógica principal
-│   │   ├── mcp_client/ # Model Context Protocol
-│   │   ├── RAGLibrary/ # Base de conhecimento
-│   │   ├── tasks/      # Motor de execução
-│   │   └── console/    # Agente de escalação
-├── tools/              # Ferramentas auxiliares
-└── config/             # Configurações e tokens
+├── scheduler/            # Núcleo de execução de tarefas
+│   ├── core/             # Lógica principal
+│   │   ├── mcp_client/   # Model Context Protocol
+│   │   ├── RAGLibrary/   # Base de conhecimento
+│   │   ├── tasks/        # Motor de execução
+│   │   └── console/      # Agente de escalação
+├── tools/                # Ferramentas auxiliares
+└── config/               # Configurações e tokens
 ```
 
 ### Stack Tecnológico
@@ -61,28 +59,297 @@ villager-ng/
 
 ### Pré-requisitos
 
+#### Sistema Operacional
+- **Linux recomendado**: Ubuntu 20.04+, Kali Linux 2023.1+, Debian 11+
+- **Windows**: Windows 10+ com WSL2 (para funcionalidades completas)
+- **macOS**: 11+ (funcionalidades limitadas)
+
+#### Software Base
 ```bash
-# Sistema isolado com:
-- VM ou container sem acesso à rede produtiva
-- Kali Linux para funcionalidades completas
-- Python 3.11+
-- Chave API OpenAI ou endpoint alternativo
+# Python e dependências
+Python 3.11+
+pip (versão mais recente)
+git
+curl
+
+# Para funcionalidades completas (Kali Linux)
+nuclei
+nmap
+msfconsole
 ```
 
-### Configuração
+#### Hardware Mínimo
+- **RAM**: 4GB mínimo, 8GB recomendado
+- **Disco**: 10GB de espaço livre
+- **CPU**: 2 cores mínimo
+- **Rede**: Isolado da rede de produção
+
+### Configuração de Ambiente
+
+#### 1. Preparação do Sistema
+
+```bash
+# Ubuntu/Debian - Instalar dependências do sistema
+sudo apt update
+sudo apt install python3.11 python3.11-venv python3-pip git curl
+
+# Kali Linux - Ferramentas adicionais
+sudo apt install nuclei nmap metasploit-framework
+
+# Verificar versões
+python3.11 --version
+pip --version
+```
+
+#### 2. Clone e Configuração Inicial
 
 ```bash
 # Clone em ambiente isolado
 git clone https://github.com/marcostolosa/villager-ng.git
 cd villager-ng
 
-# Ambiente virtual
-python -m venv venv_isolated
+# Verificar estrutura
+ls -la
+
+# Criar ambiente virtual isolado
+python3.11 -m venv venv_isolated
+
+# Ativar ambiente virtual
+# Linux/macOS:
+source venv_isolated/bin/activate
+# Windows:
+# venv_isolated\Scripts\activate
+
+# Verificar ativação
+which python
+which pip
+```
+
+#### 3. Instalação de Dependências
+
+```bash
+# Atualizar pip
+pip install --upgrade pip
+
+# Opção 1: Instalar via requirements (recomendado)
+pip install -r requirements.txt
+
+# Opção 2: Instalar via wheel (se disponível)
+pip install villager-0.2.1rc1-py3-none-any.whl
+
+# Opção 3: Instalar dependências principais manualmente
+pip install fastapi uvicorn typer loguru
+pip install langchain langchain-openai langchain-core
+pip install requests beautifulsoup4 playwright
+pip install numpy pandas scikit-learn
+pip install kink pydantic
+```
+
+#### 4. Configuração de Variáveis de Ambiente
+
+```bash
+# Copiar template de configuração
+cp .env.template .env
+
+# Editar configurações
+nano .env
+```
+
+**Exemplo de arquivo `.env`:**
+```bash
+# === CONFIGURAÇÕES BÁSICAS ===
+VILLAGER_HOST=127.0.0.1
+VILLAGER_PORT=37695
+VILLAGER_DEBUG=False
+ENVIRONMENT=development
+
+# === CONFIGURAÇÕES DE IA ===
+# OpenAI (obrigatório para funcionalidade completa)
+OPENAI_API_KEY=sk-sua-chave-aqui
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4
+OPENAI_TEMPERATURE=0.95
+
+# Modelos locais (opcional)
+LOCAL_LLM_URL=http://localhost:8000
+LOCAL_LLM_MODEL=hive
+
+# === CONFIGURAÇÕES MCP ===
+# URLs dos servidores MCP (configurar conforme seu ambiente)
+MCP_CLIENT_URL=http://127.0.0.1:25989
+KALI_DRIVER_URL=http://10.10.3.119:25989
+BROWSER_USE_URL=http://10.10.3.119:25990
+MCP_CONSOLE_URL=http://10.10.3.248:1611
+LLM_SERVER_URL=http://10.10.5.2:8000
+
+# === CONFIGURAÇÕES DE SEGURANÇA ===
+SANDBOX_MODE=True
+ALLOW_EVAL=False
+ALLOW_SYSTEM_COMMANDS=False
+LOG_ALL_COMMANDS=True
+
+# === CONFIGURAÇÕES DE REDE ===
+PROXY_ENABLED=False
+HTTP_PROXY=
+HTTPS_PROXY=
+CONNECT_TIMEOUT=10
+READ_TIMEOUT=30
+
+# === CONFIGURAÇÕES DE TESTE ===
+TEST_MODE=False
+MOCK_DANGEROUS=True
+SKIP_NETWORK_TESTS=True
+```
+
+#### 5. Instalação de Ferramentas Externas (Opcional)
+
+```bash
+# Nuclei (scanner de vulnerabilidades)
+go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+
+# Verificar instalação
+nuclei -version
+
+# Playwright (automação de browser)
+playwright install
+playwright install-deps
+```
+
+### Verificação da Instalação
+
+#### 1. Teste Básico do Sistema
+
+```bash
+# Ativar ambiente virtual
 source venv_isolated/bin/activate
 
-# Instalação
-pip install villager-0.2.1rc1-py3-none-any.whl
+# Verificar configurações
+python config.py
+
+# Teste de dependências
+python -c "import fastapi, langchain, requests; print('Dependências OK')"
+
+# Verificar estrutura
+python -c "from scheduler.core.init import global_llm; print('Core OK')"
 ```
+
+#### 2. Teste de Configuração
+
+```bash
+# Validar arquivo de configuração
+python -c "from config import validate_config; validate_config()"
+
+# Teste de conectividade (se configurado)
+python tools/get_current_ip/get_current.py
+
+# Teste de ferramentas básicas
+python tools/cidr/cidr2iplist.py
+```
+
+#### 3. Inicialização do Sistema
+
+```bash
+# Iniciar servidor (modo de teste)
+python -m interfaces.boot serve --host 127.0.0.1 --port 37695
+
+# Em outro terminal, testar API
+curl http://localhost:37695/get/task/status
+```
+
+### Configuração Avançada
+
+#### Configuração de Proxy
+
+```bash
+# Para ambientes corporativos
+export HTTP_PROXY=http://proxy.empresa.com:8080
+export HTTPS_PROXY=https://proxy.empresa.com:8080
+export NO_PROXY=localhost,127.0.0.1
+```
+
+#### Configuração de Logging
+
+```bash
+# Criar diretório de logs
+mkdir -p logs
+
+# Configurar rotação de logs
+export LOGGING_LEVEL=DEBUG
+export LOGGING_FILE=logs/villager.log
+export LOGGING_MAX_SIZE=100MB
+```
+
+#### Configuração de Docker (Alternativa)
+
+```dockerfile
+# Dockerfile para isolamento adicional
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY . .
+
+RUN pip install -r requirements.txt
+
+EXPOSE 37695
+
+CMD ["python", "-m", "interfaces.boot", "serve", "--host", "0.0.0.0", "--port", "37695"]
+```
+
+```bash
+# Build e execução
+docker build -t villager-ng .
+docker run -p 37695:37695 --env-file .env villager-ng
+```
+
+### Solução de Problemas
+
+#### Problemas Comuns
+
+**1. Erro de dependência Python:**
+```bash
+pip install --upgrade pip setuptools wheel
+pip install --force-reinstall -r requirements.txt
+```
+
+**2. Erro de permissão:**
+```bash
+# Linux/macOS
+sudo chown -R $USER:$USER venv_isolated/
+chmod +x interfaces/boot.py
+```
+
+**3. Erro de porta em uso:**
+```bash
+# Verificar porta
+netstat -tulpn | grep :37695
+# Alterar porta
+export VILLAGER_PORT=37696
+```
+
+**4. Erro de API OpenAI:**
+```bash
+# Verificar chave
+curl -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models
+```
+
+#### Logs de Debug
+
+```bash
+# Ativar logs detalhados
+export LOGGING_LEVEL=DEBUG
+export VILLAGER_DEBUG=True
+
+# Executar com logs
+python -m interfaces.boot serve 2>&1 | tee logs/debug.log
+```
+
+### Próximos Passos
+
+1. **Leia a documentação**: [DOCUMENTACAO_COMPLETA.md](DOCUMENTACAO_COMPLETA.md)
+2. **Revise segurança**: [GUIA_SEGURANCA.md](GUIA_SEGURANCA.md)
+3. **Execute testes**: `python test/test.py`
+4. **Configure MCP**: Configurar servidores MCP conforme necessidade
+5. **Teste API**: Usar exemplos da seção "Comandos Principais"
 
 ## Comandos Principais
 
@@ -177,14 +444,12 @@ TaskModel(
 
 ## CONSIDERAÇÕES CRÍTICAS DE SEGURANÇA
 
-### CLASSIFICAÇÃO: MALWARE AVANÇADO
-
-Este software demonstra características de:
+Este software tem características de:
 - **Advanced Persistent Threat (APT)**
 - **Infraestrutura de Botnet**
 - **Framework de Cyber-arma**
 
-### Perigos Identificados
+### Perigos 
 
 - **EXECUÇÃO ARBITRÁRIA**: Funções sem validação de segurança
 - **ESCALAÇÃO AUTOMÁTICA**: Sistema projetado para elevar privilégios
@@ -234,5 +499,7 @@ O uso deste framework pode constituir crime. Use APENAS:
 ---
 
 **VILLAGER-NG** - Framework com capacidades de malware avançado para fins educacionais
+
+**AVISO DE SEGURANÇA CRÍTICO**: Este framework contém funcionalidades maliciosas típicas de APT (Advanced Persistent Threat). Use APENAS para fins educacionais em ambiente completamente isolado.
 
 **ESTE SOFTWARE REQUER EXTREMA CAUTELA E DEVE SER TRATADO COMO AMEAÇA CRÍTICA**
