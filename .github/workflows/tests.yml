@@ -48,6 +48,10 @@ jobs:
         pip install opencv-python-headless
         pip install pyyaml
         pip install orjson
+        pip install matplotlib
+        pip install playwright
+        pip install openpyxl
+        pip install pandas
 
     - name: Verificar sintaxe dos arquivos Python
       run: |
