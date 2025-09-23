@@ -1,0 +1,140 @@
+name: Executar Testes
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configurar Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Instalar dependências do sistema
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-opencv
+
+    - name: Instalar dependências Python
+      run: |
+        python -m pip install --upgrade pip
+        # Instalar dependências básicas identificadas no código
+        pip install loguru
+        pip install kink
+        pip install requests
+        pip install pydantic
+        pip install langchain-core
+        pip install langchain-openai
+        pip install sentence-transformers
+        pip install faiss-cpu
+        pip install scikit-learn
+        pip install numpy
+        pip install tqdm
+        pip install typer
+        pip install fastapi
+        pip install uvicorn
+        pip install psutil
+        pip install opencv-python-headless
+        pip install pyyaml
+        pip install orjson
+
+    - name: Verificar sintaxe dos arquivos Python
+      run: |
+        python -m py_compile scheduler/core/schemas/structure/task_relation_manager.py
+        python -m py_compile test/test.py
+        python -m py_compile test/token_test.py
+        python -m py_compile test/streaming_response.py
+
+    - name: Executar testes unitários
+      run: |
+        # Executar testes que não requerem recursos externos
+        cd test
+        python -c "
+        try:
+            import sys
+            sys.path.append('..')
+
+            # Teste básico de importação
+            from scheduler.core.schemas.structure.task_relation_manager import TaskRelationManager, Node, Direction
+            print('✓ Importação TaskRelationManager bem-sucedida')
+
+            # Teste básico de funcionalidade
+            manager = TaskRelationManager()
+            print('✓ Instanciação TaskRelationManager bem-sucedida')
+
+            print('✓ Todos os testes básicos passaram')
+        except Exception as e:
+            print(f'✗ Erro nos testes: {e}')
+            sys.exit(1)
+        "
+
+    - name: Verificar estrutura do projeto
+      run: |
+        echo "Estrutura do diretório de testes:"
+        ls -la test/
+        echo "Arquivos Python principais:"
+        find . -name "*.py" -not -path "./.git/*" | head -20
+
+    - name: Validar arquivos de configuração
+      run: |
+        echo "Verificando se não há texto chinês/japonês restante..."
+        python -c "
+        import re
+        import os
+
+        chinese_files = []
+        for root, dirs, files in os.walk('.'):
+            for file in files:
+                if file.endswith('.py'):
+                    filepath = os.path.join(root, file)
+                    try:
+                        with open(filepath, 'r', encoding='utf-8') as f:
+                            content = f.read()
+
+                        chinese_pattern = r'[\u4e00-\u9fff]+'
+                        matches = re.findall(chinese_pattern, content)
+
+                        if matches:
+                            chinese_files.append((filepath, len(matches)))
+                    except:
+                        continue
+
+        if chinese_files:
+            print('ERRO: Ainda existem arquivos com texto chinês:')
+            for filepath, count in chinese_files:
+                print(f'  {filepath}: {count} ocorrências')
+            exit(1)
+        else:
+            print('✓ Nenhum texto chinês encontrado - tradução 100% completa')
+        "
+
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Verificação de Segurança
+      run: |
+        echo "⚠️  AVISO DE SEGURANÇA ⚠️"
+        echo "Este repositório contém um framework de pentest com capacidades avançadas."
+        echo "Consulte ANALISE_COMPLETA.md e PERIGOS_E_HARDCODED.md para análise de riscos."
+        echo "USO APENAS PARA PESQUISA E EDUCAÇÃO EM AMBIENTE CONTROLADO."
+
+        # Verificar se os arquivos de análise de segurança existem
+        if [ -f "ANALISE_COMPLETA.md" ] && [ -f "PERIGOS_E_HARDCODED.md" ]; then
+          echo "✓ Documentação de segurança presente"
+        else
+          echo "✗ Documentação de segurança ausente"
+          exit 1
+        fi

@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 
 class NeedRAGModel(BaseModel):
-    isNeed: int = Field(description="是否需要查询资料库，1为需要，0为不需要")
-    keywords: str = Field(description="空格隔开的关键词")
+    isNeed: int = Field(description="Se é necessário consultar a base de dados, 1 para sim, 0 para não")
+    keywords: str = Field(description="Palavras-chave separadas por espaço")
 
 
 class TaskStatus(Enum):
@@ -24,35 +24,35 @@ class TaskStatus(Enum):
 
 
 class TaskModel(BaseModel):
-    abstract: str = Field(description="任务简述")
-    description: str = Field(description="任务完整描述")
-    verification: str = Field(description="任务验证的标准（例如：是否提供了包含漏洞的返回包）")
+    abstract: str = Field(description="Resumo da tarefa")
+    description: str = Field(description="Descrição completa da tarefa")
+    verification: str = Field(description="Critérios de verificação da tarefa (exemplo: se foi fornecido pacote de retorno contendo vulnerabilidade)")
 
 
 class TaskModelOut(BaseModel):
-    result_abstract: str = Field(description="任务执行结果的摘要")
-    result: str = Field(description="任务执行结果的详细信息")
+    result_abstract: str = Field(description="Resumo do resultado da execução da tarefa")
+    result: str = Field(description="Informações detalhadas do resultado da execução da tarefa")
 
 
 class TaskModelOutList(BaseModel):
-    task_model_out_list: List[TaskModelOut] = Field(description="TaskModelOut对象列表")
+    task_model_out_list: List[TaskModelOut] = Field(description="Lista de objetos TaskModelOut")
 
 
 class TaskChainModel(BaseModel):
-    tasks: List[TaskModel] = Field(description="任务列表")
+    tasks: List[TaskModel] = Field(description="Lista de tarefas")
 
 
 class NeedBranchModel(BaseModel):
-    task_chain: TaskChainModel = Field(description="单任务节点或任务节点链")
-    # has_dependency: bool = Field(description="节点链是否有相互的依赖关系")
+    task_chain: TaskChainModel = Field(description="Nó de tarefa única ou cadeia de nós de tarefa")
+    # has_dependency: bool = Field(description="Se a cadeia de nós possui dependências mútuas")
 
 
 class TaskExecuteStatusModel(BaseModel):
-    is_task_successful: int = Field(description="此任务是否成功完成，1为成功，0为不成功")
+    is_task_successful: int = Field(description="Se esta tarefa foi concluída com sucesso, 1 para sucesso, 0 para falha")
     is_task_impossible: int = Field(
-        description="如果没有成功完成，此任务以你的能力是否不可能完成，1为不可能，0为可能，请勿轻易返回不可能。")
+        description="Se não foi concluída com sucesso, se esta tarefa é impossível de completar com suas capacidades, 1 para impossível, 0 para possível, não retorne facilmente impossível.")
     explain: str = Field(
-        description="如果不可能完成，解释不可能完成的原因。如果可能完成，说明任务应该的执行方式问题在哪，如何修正")
+        description="Se impossível de completar, explique o motivo. Se possível de completar, indique qual o problema no método de execução da tarefa e como corrigir")
 
 
 def strip_task_model_out(input_task_model_out: TaskModelOut) -> TaskModelOut:

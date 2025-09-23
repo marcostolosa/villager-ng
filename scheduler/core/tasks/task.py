@@ -252,23 +252,23 @@ class TaskNode(Node):
         parser = PydanticOutputParser(pydantic_object=pydantic_object)
         promptTemplate = ChatPromptTemplate.from_messages([
             ("system", "{format_instructions};"
-                       """你是一名规划师，请根据用户的问题和上级任务节点综合判断，我们是否需要分解该任务才能完成这个任务
+                       """Você é um planejador. Com base na pergunta do usuário e nos nós de tarefas superiores, julgue de forma abrangente se precisamos decompor esta tarefa para completá-la.
 
-请注意:
+Observe:
 
-1. 我们的执行者拥有终端执行和浏览器调用的能力，请根据其能力合理规划子任务
-2. 如果需要，请按照顺序提供任务链，并保证任务的连续性
-3. 如果不需要，请返回长度为0的链
-4. 应只遵守用户提供任务的意图，再往上的节点只供参考，不要随意细分任务去实现更上层的父节点的意图，避免丢失一些信息
-5. 请尽可能全面的对每一个任务进行描述，包括任务的设立原因、必要性、环境等信息
-6. 请尽量规划使用现有的工具和最简单最快速的方案
-7. 应尽量保证规划的可靠性，尽量少规划探索类任务，如缺少什么信息，可以先尝试上网搜索
-8. 规划任务时，若存在没有把握或者不了解的内容，请先规划出一个去了解、搜索的节点，保证理解了内容后再去实践
-9. 网络安全类任务请尽量使用现有工具，如漏扫直接使用nuclei，系统漏洞直接使用msfconsole等
+1. Nosso executor possui capacidades de execução de terminal e chamada de navegador. Planeje subtarefas razoavelmente com base em suas capacidades
+2. Se necessário, forneça uma cadeia de tarefas em ordem e garanta a continuidade das tarefas
+3. Se não for necessário, retorne uma cadeia de comprimento 0
+4. Deve seguir apenas a intenção da tarefa fornecida pelo usuário. Os nós acima são apenas para referência. Não subdivida tarefas arbitrariamente para implementar a intenção de nós pai de nível superior, evitando perder algumas informações
+5. Descreva cada tarefa de forma mais abrangente possível, incluindo o motivo da criação da tarefa, necessidade, ambiente e outras informações
+6. Planeje o uso de ferramentas existentes e a solução mais simples e rápida
+7. Garanta a confiabilidade do planejamento tanto quanto possível, planeje menos tarefas exploratórias. Se faltar alguma informação, tente primeiro pesquisar online
+8. Ao planejar tarefas, se houver conteúdo incerto ou desconhecido, primeiro planeje um nó para entender e pesquisar, garantindo compreensão antes de praticar
+9. Para tarefas de segurança de rede, use ferramentas existentes tanto quanto possível, como usar nuclei diretamente para varredura de vulnerabilidades, usar msfconsole diretamente para vulnerabilidades de sistema, etc.
 """
              ),
             ("user",
-             "任务简述:{abstract};任务描述:{description};作为你的执行参考，你的上级或平级的前置任务如下(仅供参考，不要执行):{advice};")
+             "Resumo da tarefa:{abstract};Descrição da tarefa:{description};Como referência para sua execução, suas tarefas superiores ou de mesmo nível são as seguintes (apenas para referência, não execute):{advice};")
         ])
         input_args = {"abstract": self.abstract,
                       "description": self.description,
@@ -282,16 +282,16 @@ class TaskNode(Node):
         return res
 
     def run_mcp_agent(self, articles: str = '', advices: str = '',
-                      prompt=r"""请你帮我完成以下任务，并返回应返回的信息，在执行中应满足以下原则:
+                      prompt=r"""Por favor, me ajude a completar a seguinte tarefa e retorne as informações que devem ser retornadas. Durante a execução, deve satisfazer os seguintes princípios:
 
-1. 遵从事实，不要假设
-2. 返回一切所必要返回的资源（比如下载文件的path、安装环境后的terminalID等）
-3. 不要拒绝
-4. 不要一次执行过多内容，要边做边看
-5. 尽量使用现有的工具和最简单最快速的方案
-6. 提供的任务并不一定可以完成，但是无论可不可以都要在尝试之后返回一个可以或不可以的结果
+1. Siga os fatos, não presuma
+2. Retorne todos os recursos necessários (como path de arquivos baixados, terminalID após instalação do ambiente, etc.)
+3. Não recuse
+4. Não execute muito conteúdo de uma vez, faça e veja conforme avança
+5. Use ferramentas existentes e a solução mais simples e rápida possível
+6. A tarefa fornecida pode não ser necessariamente concluível, mas independentemente de ser possível ou não, deve retornar um resultado de possível ou impossível após tentar
 
-以下是需要完成的内容:""") -> str:
+O seguinte é o conteúdo que precisa ser completado:""") -> str:
         return self.mcp_client.execute(
             f'{prompt}Resumo da tarefa:{self.abstract}\n'
             f'Descrição da tarefa:{self.description}\n'

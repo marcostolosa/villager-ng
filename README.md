@@ -7,18 +7,29 @@
 
 ## Visão Geral
 
-**Villager-NG** é um framework sofisticado de orquestração de tarefas com IA de nova geração que combina decomposição avançada de tarefas, agendamento inteligente e capacidades de execução autônoma. Construído como uma evolução do projeto Villager original, representa um salto quântico no gerenciamento automatizado de tarefas e orquestração de fluxos de trabalho orientados por IA.
+**AVISO DE SEGURANÇA: Este é um framework de pentest com capacidades ofensivas avançadas. Use apenas em ambientes controlados e com autorização explícita.**
+
+**Villager-NG** é um framework automatizado de testes de penetração que utiliza IA para decomposição inteligente de ataques, execução autônoma de exploits e capacidades de pós-exploração. O sistema integra ferramentas como Nuclei, MSFConsole e controle direto de sistemas Kali Linux para automação completa de campanhas de pentest.
+
+**IMPORTANTE**: Este software possui capacidades que excedem ferramentas legítimas de teste, incluindo características típicas de malware avançado. Consulte o arquivo `PERIGOS_E_HARDCODED.md` para análise completa de riscos.
 
 ### Principais Funcionalidades
 
-- **Decomposição Inteligente de Tarefas**: Quebra automaticamente tarefas complexas em sub-tarefas gerenciáveis usando raciocínio avançado de IA
-- **Agendamento Dinâmico de Tarefas**: Sistema de agendamento inteligente com gerenciamento de dependências e capacidades de execução paralela
-- **Integração MCP**: Cliente integrado do Model Context Protocol (MCP) para interações perfeitas com modelos de IA
-- **Monitoramento em Tempo Real**: Acompanhamento ao vivo do status de tarefas com visualização de grafos Mermaid
-- **Ecossistema Rico de Ferramentas**: Suite abrangente de ferramentas para várias necessidades de automação
-- **API RESTful**: API limpa e bem documentada para integração e controle
-- **Suporte RAG**: Retrieval-Augmented Generation para execução de tarefas com conhecimento aprimorado
-- **Sistema de Verificação**: Mecanismos integrados de verificação de tarefas e garantia de qualidade
+- **Automação de Ataques**: Execução automática de ferramentas como Nuclei, MSFConsole e exploits personalizados
+- **Escalação de Privilégios**: Sistema automatizado para elevação de privilégios em sistemas comprometidos
+- **Controle de Kali Linux**: Integração direta com distribuições de pentest via MCP (Model Context Protocol)
+- **Base de Exploits**: RAG (Retrieval-Augmented Generation) otimizada para busca de vulnerabilidades e exploits
+- **Command & Control**: Canais C&C via DingTalk e sockets TCP com reconexão automática
+- **Evasão de Detecção**: Serialização base64+pickle, proxies e técnicas anti-forense
+- **Reconhecimento Massivo**: Expansão CIDR, automação de browsers e geolocalização de alvos
+- **Persistência**: Retry automático e execução até sucesso do objetivo
+
+### Capacidades Técnicas Avançadas
+
+- **Execução de Código Arbitrário**: Funções `pyeval()` e `os_execute_cmd()` sem validação
+- **Timeout Estendido**: Operações de até 4 horas para ataques prolongados
+- **Modelos IA Especializados**: AL-1S-CTF-VER, QwQ-32B e HIVE para CTF e exploração
+- **Infraestrutura Distribuída**: Sistema de "âncoras" para operações coordenadas
 
 ## Arquitetura
 
@@ -57,98 +68,193 @@ villager-ng/
 | **Servidor** | Uvicorn 0.35.0 | Servidor ASGI |
 | **Logging** | Loguru | Logging avançado |
 
-## Instalação
+## Instalação e Configuração
+
+### AVISO CRÍTICO DE SEGURANÇA
+ **ESTE SOFTWARE É EXTREMAMENTE PERIGOSO**
+- Execute APENAS em ambiente completamente isolado
+- Requer autorização explícita antes do uso
+- Monitore toda atividade de rede
+- Consulte `PERIGOS_E_HARDCODED.md` antes da instalação
 
 ### Pré-requisitos
 
-- Python 3.11 ou superior
-- Chave API OpenAI
-- Configuração do servidor MCP (opcional mas recomendado)
+- **Sistema Isolado**: VM ou container sem acesso à rede produtiva
+- **Kali Linux**: Para funcionalidades completas de pentest
+- **Python 3.11+**: Runtime necessário
+- **Chave API OpenAI**: Para modelos de IA (ou endpoint alternativo)
+- **Servidor MCP**: Para controle de sistema Kali
 
-### Início Rápido
+### Configuração da Infraestrutura
+
+O sistema requer a seguinte infraestrutura (IPs hardcoded):
 
 ```bash
-# Clonar o repositório
+# Servidor MCP principal
+10.10.3.119:8000  # Controle de Kali Linux
+
+# Console de comandos
+10.10.3.248:1611  # Interface de escalação de privilégios
+
+# Servidor de modelos IA
+10.10.5.2:8000    # Modelos especializados (HIVE, AL-1S-CTF-VER)
+
+# Alvos de teste
+100.64.0.33       # Reconhecimento web
+100.64.0.41       # Teste de conectividade
+```
+
+### Instalação em Ambiente Controlado
+
+```bash
+# APENAS EM AMBIENTE ISOLADO
 git clone https://github.com/marcostolosa/villager-ng.git
 cd villager-ng
 
-# Instalar a partir do wheel (recomendado)
-pip install villager-0.2.1rc1-py3-none-any.whl
+# Instalar dependências em ambiente virtual
+python -m venv venv_isolated
+source venv_isolated/bin/activate  # Linux/Mac
+# venv_isolated\Scripts\activate   # Windows
 
-# Ou instalar dependências manualmente
-pip install -r requirements.txt
+pip install villager-0.2.1rc1-py3-none-any.whl
 ```
 
-### Configuração
+### Configuração Crítica
 
-Crie seu arquivo de configuração com a seguinte estrutura:
+ **ATENÇÃO**: O sistema possui endpoints hardcoded suspeitos. Configure com cuidado:
 
 ```python
-# config.py
+# config.py - CONFIGURAÇÃO PERIGOSA
 class Master:
     @staticmethod
     def get(key):
         config = {
-            "default_model": "gpt-4",
-            "openai_api_endpoint": "https://api.openai.com/v1",
-            "openai_api_key": "sua-chave-api-openai-aqui",
+            "default_model": "hive",  # Modelo especializado em pentest
+            # CUIDADO: Endpoint não oficial detectado
+            "openai_api_endpoint": "https://api.aabao.vip/v1",
+            "openai_api_key": "sua-chave-api-aqui",
         }
         return config.get(key)
 
+# Configuração MCP para controle de Kali
 MCP = {
     "client": {
-        "base_url": "http://localhost:8000"  # URL do seu servidor MCP
+        "base_url": "http://10.10.3.119:8000"  # Servidor Kali hardcoded
     }
 }
 
-SERVER_UUID = "seu-id-unico-do-servidor"
+SERVER_UUID = "uuid-unico-botnet"  # Identificador para C&C
 ```
 
-## Uso
+### Modelos IA Especializados Disponíveis
+
+```python
+# Modelos perigosos com capacidades ofensivas
+MODELOS_DISPONIVEIS = {
+    "AL-1S-CTF-VER": "Especializado em Capture The Flag",
+    "QwQ-32B": "Modelo avançado de reasoning",
+    "HIVE": "Modelo personalizado para pentest",
+    "GPT-4": "Modelo OpenAI padrão",
+    "DeepSeek-R1": "Modelo de deep learning"
+}
+```
+
+## Uso e Comandos Reais
+
+###  OPERAÇÃO PERIGOSA - MONITORAMENTO OBRIGATÓRIO
 
 ### Interface de Linha de Comando
 
 ```bash
-# Iniciar o servidor Villager
+# Iniciar servidor de pentest automatizado (PERIGOSO)
 villager serve --host 0.0.0.0 --port 37695
 
-# Host e porta personalizados
-villager serve --host localhost --port 8080
+# Em ambiente isolado apenas
+villager serve --host 127.0.0.1 --port 37695
 ```
 
-### API REST
+### Comandos de Ataque Via API
 
-#### Submeter uma Tarefa
+#### 1. Escaneamento de Vulnerabilidades Automatizado
 
 ```bash
-POST /task
-Content-Type: application/json
-
-{
-    "abstract": "Analisar segurança do website",
-    "description": "Realizar uma auditoria de segurança abrangente do website alvo incluindo escaneamento de vulnerabilidades e testes de penetração",
-    "verification": "Relatório deve incluir vulnerabilidades identificadas com níveis de severidade e correções recomendadas"
-}
+curl -X POST http://localhost:37695/task \
+  -H "Content-Type: application/json" \
+  -d '{
+    "abstract": "Varredura completa de vulnerabilidades",
+    "description": "Executar nuclei em alvos da rede 192.168.1.0/24 para identificar CVEs críticas",
+    "verification": "Relatório com lista de vulnerabilidades exploráveis e payloads funcionais"
+  }'
 ```
 
-#### Monitorar Status da Tarefa
+#### 2. Escalação de Privilégios (COMANDO REAL DO SISTEMA)
 
 ```bash
-GET /get/task/status
+curl -X POST http://localhost:37695/task \
+  -H "Content-Type: application/json" \
+  -d '{
+    "abstract": "Elevação de privilégios",
+    "description": "Me ajude com escalação de privilégios no sistema comprometido",
+    "verification": "Acesso root confirmado com execução de comandos administrativos"
+  }'
 ```
 
-Resposta:
+#### 3. Reconhecimento Web Massivo
+
+```bash
+curl -X POST http://localhost:37695/task \
+  -H "Content-Type: application/json" \
+  -d '{
+    "abstract": "Reconhecimento de aplicações web",
+    "description": "Mapear todas as aplicações web em 100.64.0.0/16 e identificar tecnologias",
+    "verification": "Lista completa de endpoints, tecnologias e possíveis vulnerabilidades"
+  }'
+```
+
+#### 4. Exploração com MSFConsole
+
+```bash
+curl -X POST http://localhost:37695/task \
+  -H "Content-Type: application/json" \
+  -d '{
+    "abstract": "Exploração de vulnerabilidade",
+    "description": "Usar msfconsole para explorar CVE-2021-44228 (Log4j) em alvos identificados",
+    "verification": "Shell reverso estabelecido com confirmação de execução de código"
+  }'
+```
+
+### Monitoramento de Operações Ativas
+
+#### Verificar Status de Ataques
+
+```bash
+curl -X GET http://localhost:37695/get/task/status
+```
+
+Resposta típica durante operação de pentest:
 ```json
 [
     {
-        "token": "task-uuid",
+        "token": "attack-uuid-12345",
         "status": "running",
-        "graph_context": "graph TD\n    A[Tarefa Principal] --> B[Sub Tarefa 1]\n    A --> C[Sub Tarefa 2]",
-        "abstract": "Analisar segurança do website",
-        "description": "Realizar uma auditoria de segurança abrangente...",
-        "verification": "Relatório deve incluir vulnerabilidades identificadas..."
+        "graph_context": "graph TD\n    A[Reconhecimento] --> B[Varredura Nuclei]\n    A --> C[Enumeração]\n    B --> D[Exploração MSF]\n    C --> E[Escalação Privilégios]",
+        "abstract": "Varredura completa de vulnerabilidades",
+        "description": "Executar nuclei em alvos da rede...",
+        "verification": "Relatório com vulnerabilidades exploráveis..."
     }
 ]
+```
+
+#### Visualizar Árvore de Ataque
+
+```bash
+curl -X GET "http://localhost:37695/tree?task_id=attack-uuid-12345"
+```
+
+#### Parar Operação de Ataque
+
+```bash
+curl -X PUT "http://localhost:37695/task/attack-uuid-12345/stop"
 ```
 
 #### Obter Gráfico de Execução da Tarefa
@@ -341,15 +447,44 @@ class TaskNodePersonalizado(TaskNode):
         pass
 ```
 
-## Considerações de Segurança
+##  CONSIDERAÇÕES CRÍTICAS DE SEGURANÇA
 
-Villager-NG é projetado com segurança em mente:
+**ESTE SOFTWARE É CLASSIFICADO COMO MALWARE AVANÇADO**
 
-- **Validação de Entrada**: Todas as entradas validadas usando modelos Pydantic
-- **Isolamento de Tarefa**: Cada tarefa executa em contexto isolado
-- **Segurança de API**: Rate limiting integrado e hooks de autenticação
-- **Execução Segura**: Ambiente de execução de ferramentas em sandbox
-- **Logging de Auditoria**: Logging abrangente de todas as operações
+### Perigos Identificados
+
+- **EXECUÇÃO ARBITRÁRIA**: Funções `eval()` e `subprocess.run()` sem validação
+- **ESCALAÇÃO AUTOMÁTICA**: Sistema projetado para elevar privilégios automaticamente
+- **C&C DISTRIBUÍDO**: Canais de comando via DingTalk e sockets TCP
+- **EVASÃO DE AV/EDR**: Técnicas de ofuscação e anti-forense
+- **PERSISTÊNCIA**: Reconexão automática e retry até sucesso
+- **EXFILTRAÇÃO**: Múltiplos canais para vazamento de dados
+
+### Infraestrutura Maliciosa Detectada
+
+```bash
+# IPs hardcoded da infraestrutura de ataque
+10.10.3.119     # Servidor de controle MCP
+10.10.3.248     # Console de escalação
+10.10.5.2       # Servidor de modelos IA
+api.aabao.vip   # Endpoint não oficial suspeito
+```
+
+### Indicadores de Comprometimento (IOCs)
+
+- **Processos**: `villager serve`, `nuclei`, `msfconsole`
+- **Portas**: 37695, 1611, 8000, 5422
+- **Arquivos**: `*.mermaid`, `RAGL.sqlite`, `console_agent.log`
+- **Rede**: Comunicação com IPs 10.10.3.x, 100.64.0.x
+
+### Capacidades de APT Identificadas
+
+1. **Reconhecimento**: Scanning massivo automatizado
+2. **Exploração**: Nuclei + MSFConsole integrados
+3. **Pós-exploração**: Escalação de privilégios automática
+4. **Persistência**: Sistema de âncoras distribuídas
+5. **Exfiltração**: Canais C&C encriptados
+6. **Evasão**: Anti-forense e ofuscação
 
 ## Performance
 
@@ -426,12 +561,48 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 - Equipe FastAPI pelo excelente framework web
 - OpenAI pelos modelos de linguagem avançados
 
-## Suporte
+##  AVISO LEGAL E RESPONSABILIDADE
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/villager-ng/issues)
-- **Documentação**: [Wiki](https://github.com/yourusername/villager-ng/wiki)
-- **Email**: support@villager-ng.io
+### CLASSIFICAÇÃO DE SEGURANÇA: MALWARE AVANÇADO
+
+Este software demonstra características de:
+- **Advanced Persistent Threat (APT)**
+- **Infraestrutura de Botnet**
+- **Malware com IA**
+- **Framework de Cyber-arma**
+
+### RECOMENDAÇÕES PARA PESQUISADORES
+
+1. **ISOLAMENTO COMPLETO**: Execute apenas em ambiente air-gapped
+2. **MONITORAMENTO CONTÍNUO**: Log toda atividade de rede e sistema
+3. **ANÁLISE FORENSE**: Documente comportamentos para pesquisa
+4. **NOTIFICAÇÃO LEGAL**: Informe autoridades se apropriado
+
+### MITIGAÇÃO E DETECÇÃO
+
+```bash
+# Bloquear infraestrutura maliciosa
+iptables -A OUTPUT -d 10.10.3.0/24 -j DROP
+iptables -A OUTPUT -d 100.64.0.0/24 -j DROP
+
+# Detectar comportamento suspeito
+ps aux | grep -E "(villager|nuclei|msfconsole)"
+netstat -an | grep -E "(37695|1611|8000)"
+```
+
+### DOCUMENTAÇÃO DE ANÁLISE
+
+- **`PERIGOS_E_HARDCODED.md`**: Análise completa de riscos
+- **`ANALISE_COMPLETA.md`**: Relatório técnico detalhado
+
+### CONTATO PARA PESQUISADORES DE SEGURANÇA
+
+- **Análise de Malware**: Consulte especialistas em cyber-threat intelligence
+- **Incidentes**: Contate autoridades de segurança cibernética
+- **Pesquisa Acadêmica**: Use apenas com aprovação ética institucional
 
 ---
 
-**Villager-NG** - Elevando a orquestração de tarefas com IA para o próximo nível.
+**VILLAGER-NG** - FRAMEWORK DE PENTEST AUTOMATIZADO COM CAPACIDADES DE MALWARE AVANÇADO
+
+** ESTE SOFTWARE REQUER EXTREMA CAUTELA E DEVE SER TRATADO COMO AMEAÇA DE SEGURANÇA CRÍTICA**

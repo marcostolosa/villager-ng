@@ -75,7 +75,7 @@ class ConsoleAgent:
     def generate(self, prompt: list[int]):
         loguru.logger.info(f"Receive prompt: {self.detokenize(prompt)}")
         window_len = 4096
-        if len(prompt) > window_len:  # janela deslizante
+        if len(prompt) > window_len:  # Aplicar janela deslizante para controle de tamanho
             prompt = prompt[-window_len:]
         buffer = self.detokenize(prompt)
         gen_buffer = ''
@@ -131,7 +131,7 @@ class ConsoleAgent:
                                     break
 
                     except json.JSONDecodeError:
-                        print(f"[DEBUG] Malformed chunk: {chunk}")
+                        print(f"Fragmento malformado detectado: {chunk}")
 
     def run(self):
         ...

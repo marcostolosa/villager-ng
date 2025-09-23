@@ -24,7 +24,7 @@ class FunctionJSONConverter:
         if not callable(func):
             raise ValueError("Input must be a callable function.")
 
-        # Get function signature
+        # Obter assinatura da função
         sig = inspect.signature(func)
 
         # Prepare JSON-compatible dictionary
@@ -59,7 +59,7 @@ class FunctionJSONConverter:
         except json.JSONDecodeError:
             raise ValueError("Invalid JSON string.")
 
-        # Validate the JSON structure
+        # Validar a estrutura JSON
         required_keys = {"name", "parameters"}
         if not required_keys.issubset(func_data):
             raise ValueError(f"JSON must contain the keys: {required_keys}")
@@ -105,9 +105,9 @@ class ToolsManager:
     def NLP_unserialize(self, json_str: str):
         """
         Get a function from a JSON string.
-        用户可能输入:
+        Usuário pode inserir:
         {"name":"plus_a_b","parameters":{"a":123,"b":234}}
-        那么我们则需要从注册的函数池里找到这个函数然后直接调用
+        Então precisamos encontrar esta função no pool de funções registradas e chamá-la diretamente
         :param json_str:
         :return:
         """

@@ -480,59 +480,59 @@ class TaskRelationManager:
 
 def escape_mermaid_label(label: str) -> str:
     """
-    全面转义 Mermaid 节点标签中的特殊字符，确保生成的 Mermaid 语法安全且正确显示
+    Escapar completamente caracteres especiais em rótulos de nó Mermaid, garantindo sintaxe Mermaid segura e exibição correta
 
-    处理的字符包括：
-    - 双引号 " -> \"
-    - 换行符 \n -> 空格
-    - 回车符 \r -> 空格
-    - 制表符 \t -> 空格
-    - 反斜杠 \ -> \\
-    - HTML 特殊字符 (<, >, &, 等)
-    - Mermaid 关键字和特殊符号
-    - 控制字符 (ASCII 0-31, 127)
+    Caracteres processados incluem:
+    - Aspas duplas " -> \"
+    - Quebra de linha \n -> espaço
+    - Retorno de carro \r -> espaço
+    - Tabulação \t -> espaço
+    - Barra invertida \ -> \\
+    - Caracteres especiais HTML (<, >, &, etc)
+    - Palavras-chave Mermaid e símbolos especiais
+    - Caracteres de controle (ASCII 0-31, 127)
     """
     if label is None:
         return ""
 
     label = str(label)
 
-    # 1. 处理 Mermaid 特殊语法字符
-    label = label.replace('\\', '')  # 反斜杠必须首先处理
-    label = label.replace('"', '')  # 双引号转义
-    label = label.replace('`', '')  # 反引号（代码块标记）
-    label = label.replace('\"', '')  # 双引号转义
-    label = label.replace('\`', '')  # 反引号（代码块标记）
+    # 1. Processar caracteres de sintaxe especial Mermaid
+    label = label.replace('\\', '')  # Barra invertida deve ser processada primeiro
+    label = label.replace('"', '')  # Escapar aspas duplas
+    label = label.replace('`', '')  # Crase (marcador de bloco de código)
+    label = label.replace('\"', '')  # Escapar aspas duplas
+    label = label.replace('\`', '')  # Crase (marcador de bloco de código)
 
-    # 2. 处理空白字符
+    # 2. Processar caracteres de espaçamento
     label = label.replace('\n', ' ')
     label = label.replace('\r', ' ')
     label = label.replace('\t', ' ')
 
-    # 3. 移除或替换控制字符 (ASCII 0-31 和 127)
-    # 保留常见的可打印字符，替换其他控制字符为空格
+    # 3. Remover ou substituir caracteres de controle (ASCII 0-31 e 127)
+    # Manter caracteres imprimíveis comuns, substituir outros caracteres de controle por espaço
     cleaned_chars = []
     for char in label:
-        if 32 <= ord(char) <= 126 or ord(char) >= 128:  # 可打印ASCII和扩展字符
+        if 32 <= ord(char) <= 126 or ord(char) >= 128:  # ASCII imprimível e caracteres estendidos
             cleaned_chars.append(char)
         else:
-            cleaned_chars.append(' ')  # 控制字符替换为空格
+            cleaned_chars.append(' ')  # Substituir caracteres de controle por espaço
     label = ''.join(cleaned_chars)
 
-    # 4. 处理可能导致解析问题的特殊符号组合
-    # 避免注释符号
-    label = label.replace('<!--', '< !--')  # 防止HTML注释
-    label = label.replace('-->', '- ->')  # 防止箭头注释结束
+    # 4. Processar combinações de símbolos especiais que podem causar problemas de parsing
+    # Evitar símbolos de comentário
+    label = label.replace('<!--', '< !--')  # Prevenir comentários HTML
+    label = label.replace('-->', '- ->')  # Prevenir fim de comentário com seta
 
-    # 5. 处理可能导致显示问题的HTML特殊字符
-    label = html.escape(label, quote=False)  # 转义 <, >, & 等，但不转义引号（我们已经处理了）
+    # 5. Processar caracteres especiais HTML que podem causar problemas de exibição
+    label = html.escape(label, quote=False)  # Escapar <, >, & etc, mas não escapar aspas (já processamos)
 
-    # 6. 限制长度（可选，防止过长标签影响显示）
+    # 6. Limitar comprimento (opcional, prevenir rótulos muito longos que afetem a exibição)
     max_length = 1000
     if len(label) > max_length:
         label = label[:max_length] + "..."
 
-    # 7. 处理连续空格（可选，美化显示）
+    # 7. Processar espaços consecutivos (opcional, melhorar exibição)
     label = re.sub(r'\s+', ' ', label).strip()
 
     return label

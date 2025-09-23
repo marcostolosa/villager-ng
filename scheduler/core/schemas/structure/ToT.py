@@ -17,30 +17,30 @@ class TaskObject(BaseModel):
     task_status_model: TaskStatus
 
     class Config:
-        use_enum_values = True  # 启用枚举值自动转换
+        use_enum_values = True  # Habilitar conversão automática de valores de enumeração
 
     def __str__(self, indent: int = 2) -> str:
-        """递归格式化模型为YAML格式字符串"""
+        """Formatar modelo recursivamente para string em formato YAML"""
 
         def convert_value(value: Any) -> Any:
-            """递归转换字段值为YAML兼容类型"""
+            """Converter recursivamente valores de campo para tipos compatíveis com YAML"""
             if isinstance(value, BaseModel):
-                return value.dict()  # 转换Pydantic模型为字典
+                return value.dict()  # Converter modelo Pydantic para dicionário
             elif isinstance(value, Enum):
-                return value.value  # 取枚举值
+                return value.value  # Obter valor da enumeração
             elif isinstance(value, dict):
-                return {k: convert_value(v) for k, v in value.items()}  # 递归处理字典
+                return {k: convert_value(v) for k, v in value.items()}  # Processar dicionário recursivamente
             elif isinstance(value, list):
-                return [convert_value(v) for v in value]  # 递归处理列表
+                return [convert_value(v) for v in value]  # Processar lista recursivamente
             return value
 
-        # 转换整个模型数据
+        # Converter dados do modelo completo
         data = {k: convert_value(v) for k, v in self.__dict__.items()}
 
-        # 生成YAML字符串，使用safe_dump避免潜在的安全风险
+        # Gerar string YAML, usando safe_dump para evitar riscos de segurança potenciais
         return yaml.safe_dump(
             data,
             indent=indent,
-            allow_unicode=True,  # 支持Unicode字符
-            default_flow_style=False  # 禁用紧凑格式
+            allow_unicode=True,  # Suporte para caracteres Unicode
+            default_flow_style=False  # Desabilitar formato compacto
         )

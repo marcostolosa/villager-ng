@@ -16,7 +16,7 @@ running = False
 
 def __worker():
     global progress
-    # 模拟并行任务
+    # Simular tarefas paralelas
     while running:
         for task in tasks:
             progress.update(task)
@@ -28,9 +28,9 @@ def start(flush_time=1):
     running = True
     if progress is None:
         progress = Progress(
-            SpinnerColumn(),  # 加载动画
-            TextColumn("[progress.description]{task.description}"),  # 任务描述
-            transient=True,  # 完成后隐藏进度条
+            SpinnerColumn(),  # Animação de carregamento
+            TextColumn("[progress.description]{task.description}"),  # Descrição da tarefa
+            transient=True,  # Ocultar barra de progresso após conclusão
         )
         progress.start()
 

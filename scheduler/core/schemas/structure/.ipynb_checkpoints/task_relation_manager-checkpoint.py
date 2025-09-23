@@ -54,7 +54,7 @@ class TaskRelationManager:
             return self.task_registry[id]
 
     def _get_task_id(self, task: node) -> int:
-        """内部方法：获取任务的唯一ID"""
+        """Método interno: Obter o ID único da tarefa"""
         if task:
             task_id = task.id
             if task_id not in self.task_registry:
@@ -64,9 +64,9 @@ class TaskRelationManager:
 
     def add_task(self, task: node) -> int:
         """
-        注册新任务
-        :param task: 任何可哈希的对象（建议使用不可变对象）
-        :return: 生成的唯一任务ID
+        Registrar nova tarefa
+        :param task: Qualquer objeto hashável (recomenda-se usar objetos imutáveis)
+        :return: ID único da tarefa gerado
         """
         task_id = self._get_task_id(task)
         if task_id not in self.relationships:
@@ -168,7 +168,7 @@ class TaskRelationManager:
         chain = [current_task]
         chain.extend(sub_task)
         if d:
-            # 一般来说输入的结构正确不会有sub direction完全占满的状态，但这个仅为了保险
+            # Geralmente, com estrutura de entrada correta, não haverá estado de sub direções completamente ocupadas, mas isso é apenas por segurança
             for n1, n2 in pairwise(chain):
                 self.set_relationship(n1, d, n2)
 
@@ -176,10 +176,10 @@ class TaskRelationManager:
                          direction: Direction,
                          to_task: node = None):
         """
-        设置任务间关系（None表示解除关系）
-        :param from_task: 关系发起方任务
-        :param direction: Direction枚举值
-        :param to_task: 关系接收方任务
+        Definir relacionamento entre tarefas (None indica remoção do relacionamento)
+        :param from_task: Tarefa que inicia o relacionamento
+        :param direction: Valor do enum Direction
+        :param to_task: Tarefa que recebe o relacionamento
         """
         from_id = self._get_task_id(from_task)
         to_id = self._get_task_id(to_task) if to_task else None
@@ -195,10 +195,10 @@ class TaskRelationManager:
     def get_task_chain(self, start_task: node,
                        direction: Direction) -> list:
         """
-        获取特定方向的任务链
-        :param start_task: 起始任务
-        :param direction: 遍历方向
-        :return: 任务ID链表
+        Obter cadeia de tarefas em direção específica
+        :param start_task: Tarefa inicial
+        :param direction: Direção de percorrimento
+        :return: Lista encadeada de IDs de tarefa
         """
         chain = []
         current_id = self._get_task_id(start_task)
@@ -209,31 +209,31 @@ class TaskRelationManager:
 
     def get_neighbors(self, task: node) -> dict:
         """
-        获取任务的四向邻居
-        :param task: 目标任务
-        :return: 包含四个方向任务ID的字典
+        Obter vizinhos nas quatro direções da tarefa
+        :param task: Tarefa alvo
+        :return: Dicionário contendo IDs de tarefa nas quatro direções
         """
         task_id = self._get_task_id(task)
         return self.relationships.get(task_id, {})
 
     def get_direction_neighbors(self, task: node, direction: Direction) -> int:
         """
-        获取指定方向的邻居
-        :param task: 目标任务
-        :param direction: 遍历方向
-        :return: 任务ID链表
+        Obter vizinho na direção especificada
+        :param task: Tarefa alvo
+        :param direction: Direção de percorrimento
+        :return: Lista encadeada de IDs de tarefa
         """
         task_id = self._get_task_id(task)
         return self.relationships.get(task_id, {}).get(direction)
 
     def get_upper_chain(self, start_task: node, window_len: int) -> List[Dict]:
         """
-        获取指定节点的上级链路的最近window_len个对象。
-        同一层级优先收集上级节点，其次左节点，按层级顺序返回，直到达到window_len的数量。
+        Obter os window_len objetos mais recentes da cadeia superior do nó especificado.
+        Prioridade na coleta de nós superiores do mesmo nível, seguido de nós à esquerda, retornando em ordem de nível até atingir a quantidade window_len.
 
-        :param start_task: 起始任务节点
-        :param window_len: 需要返回的上级节点数量
-        :return: 包含任务对象的列表，按从近到远顺序排列，每个元素包含方向和距离
+        :param start_task: Nó de tarefa inicial
+        :param window_len: Quantidade de nós superiores a retornar
+        :return: Lista contendo objetos de tarefa, ordenados do mais próximo ao mais distante, cada elemento contém direção e distância
         """
         if window_len <= 0:
             return []
@@ -260,7 +260,7 @@ class TaskRelationManager:
             window_len -= 1
             up_chain_from_left = self.get_upper_chain(left_node, window_len)
             up_chain_from_up = self.get_upper_chain(up_node, window_len)
-            # 把这两个链里面的distance ++并保存回链
+            # Incrementar a distância dessas duas cadeias e salvar de volta na cadeia
             for item in up_chain_from_left:
                 item["distance_with_start"] += 1
                 result.append(item)

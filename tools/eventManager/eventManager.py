@@ -14,18 +14,18 @@ class EventManager:
         }
         self.dtkLog = diamond_shovel.tools.dingtalk.sender.Manager()
 
-    def submit(self, message, level, submessage="影响范围未知"):
+    def submit(self, message, level, submessage="Escopo de impacto desconhecido"):
         """ Submit an event with a specific severity level. """
         handler = self.handlers.get(level)
         try:
             if handler:
                 handler(
-                    f"发生事件 等级: {level} 时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n原日志:{message}\n标注:{submessage}")
+                    f"Evento ocorreu Nível: {level} Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\nLog original:{message}\nAnotação:{submessage}")
 
             else:
-                logging.error(f"不知道的等级: {level}")
+                logging.error(f"Nível desconhecido: {level}")
         except Exception as e:
-            logging.error("事件注册器发生错误")
+            logging.error("Erro no registrador de eventos")
             logging.error(e)
 
     def send_advisory(self, message):

@@ -1,19 +1,19 @@
 def format_anchor_message(anchors):
     """
-    锚点离线文字的格式化函数
+    Função de formatação de texto para âncoras offline
     :param anchors:
     :return:
     """
     if anchors:
-        message_lines = [f"锚点 {anchor.id} - {anchor.location} 离线" for anchor in anchors]
+        message_lines = [f"Âncora {anchor.id} - {anchor.location} offline" for anchor in anchors]
         return "\n".join(message_lines)
     else:
-        return "当前无离线锚点。"
+        return "Atualmente não há âncoras offline."
 
-# list去重函数
+# Função de remoção de duplicatas de lista
 def list_unique(input_list):
     """
-    列表去重函数
+    Função de remoção de duplicatas de lista
     :param input_list:
     :return:
     """

@@ -1,5 +1,5 @@
 # -----------------------------------------------------
-# 此文件定义了一个 ConsoleAgent 类，可直接连续的在控制台交互
+# Este arquivo define uma classe ConsoleAgent que pode interagir diretamente e continuamente no console
 # -----------------------------------------------------
 from kink import inject
 from langchain.chains.conversation.base import ConversationChain
@@ -17,7 +17,7 @@ class ConsoleAgent:
 
     def invoke(self):
         """
-        交互式执行task，不需要检验
+        Execução interativa da tarefa, não requer validação
         :return:
         """
         ...

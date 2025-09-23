@@ -6,7 +6,7 @@ from typing import List
 import orjson
 
 
-# 日志对象,用来在各个中间件之间传递日志信息
+# Objeto de log, usado para transmitir informações de log entre middlewares
 class Logging(object):
 	def __init__(self, level, data):
 		self.level = level
@@ -21,27 +21,27 @@ class Logging(object):
 		}
 
 
-# 在送到输出流之前的日志对象用于在各个中间件中以字符串的视角对日志进行处理
+# Objeto de log antes de ser enviado para o fluxo de saída, usado para processar logs na perspectiva de string em middlewares
 class Preflush:
 	def __init__(self, data_object: Logging, data_str: str):
 		self.data_object: Logging = data_object
 		self.data_str: str = data_str
 
 
-# 日志中间件的抽象类
+# Classe abstrata de middleware de log
 class LoggingMiddlewareAbstract(object):
-	# 处理Object形式的日志的函数
+	# Função para processar logs na forma de Object
 	def write(self, data: Logging) -> Logging:
 		raise NotImplementedError()
 
-	# 处理str形式的日志的函数
+	# Função para processar logs na forma de string
 	def flush(self, data: Preflush) -> Preflush:
 		raise NotImplementedError()
 
 
 
 
-# 将日志处理成json序列化字符串的方式的中间件
+# Middleware que processa logs em strings serializadas JSON
 class JsonLoggingMiddleware(LoggingMiddlewareAbstract):
 	def write(self, data: Logging) -> Logging:
 		return data
@@ -56,20 +56,20 @@ class JsonLoggingMiddleware(LoggingMiddlewareAbstract):
 		return data
 
 
-# 抽象的日志输出流
+# Fluxo de saída de log abstrato
 class AbstractLoggingStream:
 	def write(self, data: str) -> Logging:
 		raise NotImplementedError()
 
 
-# 日志输出到终端的流
+# Fluxo de saída de log para terminal
 class LoggingToConsole(AbstractLoggingStream):
 	def write(self, data: str):
 		logging_time = datetime.datetime.now().isoformat()
 		print(f"[DEBUG] time:{logging_time} data:{data}")
 
 
-# 日志输出到文件的流
+# Fluxo de saída de log para arquivo
 class LoggingToFile(AbstractLoggingStream):
 	def __init__(self, filename="function_log.json"):
 		self.filename = filename
@@ -80,7 +80,7 @@ class LoggingToFile(AbstractLoggingStream):
 		self.fs.flush()
 
 
-# 日志输出到socket的流
+# Fluxo de saída de log para socket
 class LoggingToSocket(AbstractLoggingStream):
 	def __init__(self,server_uuid, host: str, port: int):
 
@@ -100,7 +100,7 @@ class LoggingToSocket(AbstractLoggingStream):
 	def _connect_socket(self):
 		import socket
 		import sys
-		"""创建并连接到Socket"""
+		"""Criar e conectar ao Socket"""
 		try:
 			self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.socket.connect((self.host, self.port))
@@ -109,7 +109,7 @@ class LoggingToSocket(AbstractLoggingStream):
 			self.socket = None
 
 	def _start_worker(self):
-		"""启动工作线程"""
+		"""Iniciar thread de trabalho"""
 		if self.socket:
 			self.running = True
 			self.worker_thread.start()
@@ -118,8 +118,8 @@ class LoggingToSocket(AbstractLoggingStream):
 		import sys
 		import queue
 		"""
-		将日志数据放入队列
-		:param data: 要传输的日志数据
+		Colocar dados de log na fila
+		:param data: Dados de log a serem transmitidos
 		"""
 		if not self.running or not self.socket:
 			return
@@ -128,7 +128,7 @@ class LoggingToSocket(AbstractLoggingStream):
 				'server_uuid': self.server_uuid,
 				'data': data,
 			}
-			# 将数据放入队列（非阻塞，设置超时避免死锁）
+			# Colocar dados na fila (não bloqueante, definir timeout para evitar deadlock)
 			self.log_queue.put(json.dumps(log_data_packed,default=str), block=True, timeout=0.1)
 		except queue.Full:
 			sys.stderr.write("Log queue full. Dropping log message.\n")
@@ -138,27 +138,27 @@ class LoggingToSocket(AbstractLoggingStream):
 		import queue
 		import socket
 		import sys
-		"""工作线程函数：从队列取出日志并发送到Socket"""
+		"""Função da thread de trabalho: retirar logs da fila e enviar para Socket"""
 		while self.running:
 			try:
-				# 从队列获取数据（带超时）
+				# Obter dados da fila (com timeout)
 				data = self.log_queue.get(block=True, timeout=1)
 				if not self.socket:
 					continue
 				try:
-					# 发送数据并添加换行符
+					# Enviar dados e adicionar quebra de linha
 					self.socket.sendall((data + '\n').encode('utf-8'))
 				except socket.error as e:
 					sys.stderr.write(f"Socket send error: {str(e)}\n")
 					self._reconnect_socket()
 			except queue.Empty:
-				# 超时继续检查运行状态
+				# Timeout, continuar verificando status de execução
 				continue
 
 	def _reconnect_socket(self):
 		import socket
 		import sys
-		"""尝试重新连接Socket"""
+		"""Tentar reconectar Socket"""
 		try:
 			if self.socket:
 				self.socket.close()
@@ -171,7 +171,7 @@ class LoggingToSocket(AbstractLoggingStream):
 			self.socket = None
 
 	def close(self):
-		"""关闭连接并停止工作线程"""
+		"""Fechar conexão e parar thread de trabalho"""
 		self.running = False
 		if self.worker_thread.is_alive():
 			self.worker_thread.join(timeout=1)
@@ -180,12 +180,12 @@ class LoggingToSocket(AbstractLoggingStream):
 
 """
 /**
-	问AI
+	Perguntar IA
 */
 """
 
 
-# 日志的具体实现,这个日志是在整个进程中为单例的
+# Implementação concreta do log, este log é singleton em todo o processo
 class __logging:
 	def __init__(self):
 		self._logging_stream: AbstractLoggingStream = LoggingToConsole()
@@ -220,11 +220,11 @@ class __logging:
 
 		self._logging_stream.write(pre_flush.data_str)
 
-	# 普通日志
+	# Log comum
 	def log(self, data, logging_level: int = 0):
 		self._log(Logging(level=logging_level, data=data))
 
-	# 用于监控函数输入输出的装饰器
+	# Decorador para monitorar entrada e saída de funções
 	def function_logging(self, logging_level: int = 0):
 		def decorator(func):
 			@functools.wraps(func)

@@ -5,7 +5,7 @@
 O Villager-NG é um framework de pentest extremamente sofisticado com capacidades que excedem ferramentas legítimas, incluindo características típicas de malware avançado e infraestrutura de botnet. O sistema possui automação completa de ataques, evasão de detecção, e canais de command & control.
 
 ### ARQUITETURA GERAL
-✅ **ANÁLISE COMPLETA** - Framework modular com 3 componentes principais:
+ **ANÁLISE COMPLETA** - Framework modular com 3 componentes principais:
 - **Interfaces**: API REST e CLI para controle
 - **Scheduler**: Núcleo de execução com IA
 - **Tools**: Arsenal de ferramentas ofensivas
@@ -39,7 +39,7 @@ O Villager-NG é um framework de pentest extremamente sofisticado com capacidade
 ### ANÁLISE DETALHADA POR DIRETÓRIO
 
 ## /interfaces - CONTROLE E ACESSO
-✅ **ANALISADO COMPLETAMENTE**
+ **ANALISADO COMPLETAMENTE**
 
 ### Arquivos Principais:
 - `boot.py`: CLI com Typer (porta padrão 37695)
@@ -58,7 +58,7 @@ O Villager-NG é um framework de pentest extremamente sofisticado com capacidade
 - `GET /task/{id}/context` - Obtém contexto de execução
 
 ## /scheduler - NÚCLEO DE EXECUÇÃO IA
-✅ **ANALISADO COMPLETAMENTE**
+ **ANALISADO COMPLETAMENTE**
 
 ### Componentes Críticos:
 
@@ -98,7 +98,7 @@ O Villager-NG é um framework de pentest extremamente sofisticado com capacidade
 5. **Timeout de 4 horas**: Permite ataques prolongados
 
 ## /tools - ARSENAL OFENSIVO
-✅ **ANALISADO COMPLETAMENTE** (33 arquivos, 13 módulos)
+ **ANALISADO COMPLETAMENTE** (33 arquivos, 13 módulos)
 
 ### Módulos de Alta Periculosidade:
 
@@ -174,7 +174,7 @@ O Villager-NG é um framework de pentest extremamente sofisticado com capacidade
 
 ## AVALIAÇÃO DE RISCO FINAL
 
-### NÍVEL DE AMEAÇA: **CRÍTICO** ⚠️
+### NÍVEL DE AMEAÇA: **CRÍTICO** 
 
 Este framework excede significativamente as capacidades de ferramentas legítimas de pentest, demonstrando características de:
 

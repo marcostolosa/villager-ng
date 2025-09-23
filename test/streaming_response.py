@@ -26,7 +26,7 @@ async def wrapped_main(task_id, llm):
     async for event in chain.astream(
             {
                 "input": """
-                请充给代码
+                Por favor, complete o código
                 """
             }
 
@@ -43,7 +43,7 @@ async def wrapped_main(task_id, llm):
             if elapsed_time == 0:
                 elapsed_time = 1e-9
             speed = 100 / elapsed_time
-            # print(f"任务 {task_id}: 当前速度为 {speed:.2f} tokens/s", flush=True)
+            # print(f"Tarefa {task_id}: Velocidade atual é {speed:.2f} tokens/s", flush=True)
 
             counter -= 100
             last_time = current_time

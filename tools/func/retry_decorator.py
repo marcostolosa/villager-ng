@@ -7,11 +7,11 @@ import loguru
 
 def retry(max_retries=3, delay=1):
     """
-    重试装饰器
+    Decorador de nova tentativa
 
-    参数:
-    max_retries (int): 最大重试次数。
-    delay (int): 重试间隔时间（秒）。
+    Parâmetros:
+    max_retries (int): Número máximo de novas tentativas.
+    delay (int): Intervalo de tempo entre tentativas (segundos).
     """
 
     def decorator(func):

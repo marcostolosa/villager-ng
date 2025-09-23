@@ -46,7 +46,7 @@ class Crawler(CrawlerBase):
     def __init__(self, url):
         self.url = url
 
-        # Initialize the playwright browser
+        # Inicializar o navegador playwright
         self.playwright = sync_playwright().start()
 
     def get_page_content(self, **kwargs):
